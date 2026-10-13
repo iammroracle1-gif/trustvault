@@ -65,7 +65,7 @@ export default function BottomNav() {
           />
           
           {navItems.map((item, index) => {
-            const Icon = item.icon;
+            const IconComponent = item.icon;
             
             return (
               <button
@@ -77,7 +77,7 @@ export default function BottomNav() {
                 className="relative z-10 w-[52px] h-12 flex items-center justify-center rounded-full transition-transform duration-150 active:scale-90"
                 aria-label={item.label}
               >
-                {typeof Icon === 'function' ? <Icon /> : <Icon className="w-6 h-6 text-white" strokeWidth={2} />}
+                <IconComponent className="w-6 h-6 text-white" strokeWidth={2} />
               </button>
             );
           })}
