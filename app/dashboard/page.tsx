@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Copy, Send, ArrowDownToLine, Settings, Bell, Check } from "lucide-react";
 import ReceiveModal from "@/components/ReceiveModal";
+import SendModal from "@/components/SendModal";
 import WalletModal from "@/components/WalletModal";
 import CustomizeWalletModal from "@/components/CustomizeWalletModal";
 import BottomNav from "@/components/BottomNav";
@@ -38,6 +39,7 @@ function DashboardContent() {
   const address = shortenAddress(fullAddress);
   
   const [showReceive, setShowReceive] = useState(false);
+  const [showSend, setShowSend] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showCustomizeModal, setShowCustomizeModal] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState(false);
@@ -290,7 +292,10 @@ function DashboardContent() {
 
         {/* Action Buttons */}
         <div className="flex gap-3">
-          <button className="flex-1 py-3 bg-[#4938F5] text-white text-base font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-[#3D2DD4] transition-colors">
+          <button 
+            onClick={() => setShowSend(true)}
+            className="flex-1 py-3 bg-[#4938F5] text-white text-base font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-[#3D2DD4] transition-colors"
+          >
             <Send className="w-4 h-4" />
             Send
           </button>
@@ -440,6 +445,14 @@ function DashboardContent() {
 
       {/* Bottom Navigation - Glass Morphism Style */}
       <BottomNav />
+
+      {/* Send Modal */}
+      {showSend && (
+        <SendModal
+          balance={0}
+          onClose={() => setShowSend(false)}
+        />
+      )}
 
       {/* Receive Modal */}
       {showReceive && (
