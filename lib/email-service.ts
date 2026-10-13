@@ -19,9 +19,18 @@ export async function sendTransactionEmail(notification: EmailNotification) {
     }
 
     // Check if this notification type is enabled
-    const notifType = notification.type === 'restriction' ? 'security' : notification.type;
-    if (!userPrefs.notifications[notifType]) {
-      console.log(`${notifType} notifications disabled for user`);
+    const notifTypeMap: Record<string, keyof typeof userPrefs.notifications> = {
+      'deposit': 'deposits',
+      'withdrawal': 'withdrawals',
+      'transfer': 'transfers',
+      'trade': 'trades',
+      'security': 'security',
+      'restriction': 'security',
+    };
+    
+    const prefKey = notifTypeMap[notification.type] || 'security';
+    if (!userPrefs.notifications[prefKey]) {
+      console.log(`${prefKey} notifications disabled for user`);
       return;
     }
 
