@@ -6,7 +6,6 @@ import { X, Menu, ChevronRight } from "lucide-react";
 
 // Force dynamic rendering - no static generation
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 function TradePageContent() {
   const router = useRouter();

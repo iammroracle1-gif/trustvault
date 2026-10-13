@@ -15,7 +15,6 @@ import { formatCurrency, shortenAddress, formatPercentage } from "@/lib/utils";
 
 // Force dynamic rendering - no static generation
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 interface Transaction {
   id: string;
