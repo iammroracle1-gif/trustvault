@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  // Environment check endpoint - verifies database connection strings
   const envVars = {
     POSTGRES_URL: !!process.env.POSTGRES_URL,
     POSTGRES_PRISMA_URL: !!process.env.POSTGRES_PRISMA_URL,
