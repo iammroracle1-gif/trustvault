@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, ChevronRight, AlertCircle, Check } from "lucide-react";
+import Image from "next/image";
 
 interface SendModalProps {
   onClose: () => void;
@@ -15,12 +16,32 @@ export default function SendModal({ onClose, balance }: SendModalProps) {
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
 
-  // Popular assets
+  // Popular assets with real crypto icons
   const assets = [
-    { symbol: 'ETH', name: 'Ethereum', balance: '0.00', icon: '⟠' },
-    { symbol: 'BTC', name: 'Bitcoin', balance: '0.00', icon: '₿' },
-    { symbol: 'USDT', name: 'Tether USD', balance: '0.00', icon: '$' },
-    { symbol: 'BNB', name: 'BNB', balance: '0.00', icon: 'B' },
+    { 
+      symbol: 'ETH', 
+      name: 'Ethereum', 
+      balance: '0.00', 
+      icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png' 
+    },
+    { 
+      symbol: 'BTC', 
+      name: 'Bitcoin', 
+      balance: '0.00', 
+      icon: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png' 
+    },
+    { 
+      symbol: 'USDT', 
+      name: 'Tether USD', 
+      balance: '0.00', 
+      icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png' 
+    },
+    { 
+      symbol: 'BNB', 
+      name: 'BNB', 
+      balance: '0.00', 
+      icon: 'https://cryptologos.cc/logos/bnb-bnb-logo.png' 
+    },
   ];
 
   const handleSelectAsset = (symbol: string) => {
@@ -102,8 +123,14 @@ export default function SendModal({ onClose, balance }: SendModalProps) {
                     className="w-full p-4 bg-[#2C2C2E] hover:bg-[#3A3A3C] rounded-xl transition-colors flex items-center justify-between active:scale-98"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#4938F5]/20 rounded-full flex items-center justify-center">
-                        <span className="text-[#4938F5] text-xl font-bold">{asset.icon}</span>
+                      <div className="w-10 h-10 bg-[#2C2C2E] rounded-full flex items-center justify-center overflow-hidden">
+                        <Image 
+                          src={asset.icon} 
+                          alt={asset.symbol}
+                          width={40}
+                          height={40}
+                          className="object-contain"
+                        />
                       </div>
                       <div className="text-left">
                         <p className="text-white font-semibold text-[15px]">{asset.symbol}</p>
@@ -126,8 +153,14 @@ export default function SendModal({ onClose, balance }: SendModalProps) {
               {/* Selected Asset */}
               <div className="p-4 bg-[#2C2C2E] rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#4938F5]/20 rounded-full flex items-center justify-center">
-                    <span className="text-[#4938F5] text-xl font-bold">{selectedAssetData?.icon}</span>
+                  <div className="w-10 h-10 bg-[#2C2C2E] rounded-full flex items-center justify-center overflow-hidden">
+                    <Image 
+                      src={selectedAssetData?.icon || ''} 
+                      alt={selectedAssetData?.symbol || ''}
+                      width={40}
+                      height={40}
+                      className="object-contain"
+                    />
                   </div>
                   <div>
                     <p className="text-white font-semibold text-[15px]">{selectedAssetData?.symbol}</p>
@@ -206,8 +239,14 @@ export default function SendModal({ onClose, balance }: SendModalProps) {
             <div className="p-6 space-y-6">
               {/* Summary */}
               <div className="text-center py-6">
-                <div className="w-16 h-16 bg-[#4938F5]/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-[#4938F5] text-3xl font-bold">{selectedAssetData?.icon}</span>
+                <div className="w-16 h-16 bg-[#2C2C2E] rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+                  <Image 
+                    src={selectedAssetData?.icon || ''} 
+                    alt={selectedAssetData?.symbol || ''}
+                    width={64}
+                    height={64}
+                    className="object-contain"
+                  />
                 </div>
                 <p className="text-[#8E8E93] text-[15px] mb-2">You're sending</p>
                 <h3 className="text-white text-[32px] font-bold mb-1">{amount} {selectedAsset}</h3>

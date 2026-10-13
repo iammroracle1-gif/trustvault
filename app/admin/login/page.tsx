@@ -117,14 +117,6 @@ export default function AdminLogin() {
           </form>
         </div>
 
-        {/* Default Credentials Info (Remove in Production) */}
-        <div className="mt-6 p-4 bg-[#1C1C1E] border border-white/10 rounded-xl">
-          <p className="text-[#8E8E93] text-[11px] uppercase tracking-wide mb-2">Development Credentials</p>
-          <p className="text-white text-[13px] font-mono mb-1">Username: admin</p>
-          <p className="text-white text-[13px] font-mono">Password: admin123</p>
-          <p className="text-[#FF9500] text-[11px] mt-2">⚠️ Change these in production!</p>
-        </div>
-
         {/* Back to App */}
         <div className="text-center mt-6">
           <button
