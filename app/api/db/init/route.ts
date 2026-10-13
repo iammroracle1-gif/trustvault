@@ -3,6 +3,14 @@ import { sql } from '@vercel/postgres';
 
 export async function GET() {
   try {
+    // Debug: Check which environment variables are available
+    const envDebug = {
+      POSTGRES_URL: process.env.POSTGRES_URL ? 'SET' : 'NOT SET',
+      POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL ? 'SET' : 'NOT SET',
+      POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING ? 'SET' : 'NOT SET',
+      DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT SET',
+    };
+
     // Check if database is configured - check multiple env vars for different providers
     if (!process.env.POSTGRES_URL && 
         !process.env.POSTGRES_PRISMA_URL && 
@@ -10,6 +18,7 @@ export async function GET() {
       return NextResponse.json({
         success: false,
         error: 'Database not configured. Add Vercel Postgres in your Vercel dashboard.',
+        debug: envDebug,
       }, { status: 500 });
     }
 
