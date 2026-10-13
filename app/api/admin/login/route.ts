@@ -8,7 +8,10 @@ const ADMIN_CREDENTIALS = {
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json();
+    const body = await request.json();
+    const { username, password } = body;
+
+    console.log('Login attempt:', { username, hasPassword: !!password });
 
     if (!username || !password) {
       return NextResponse.json(
@@ -17,29 +20,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Trim whitespace from inputs
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+
+    console.log('Checking credentials:', {
+      provided: trimmedUsername,
+      expected: ADMIN_CREDENTIALS.username,
+      match: trimmedUsername === ADMIN_CREDENTIALS.username,
+    });
+
     // Validate credentials
     if (
-      username === ADMIN_CREDENTIALS.username &&
-      password === ADMIN_CREDENTIALS.password
+      trimmedUsername === ADMIN_CREDENTIALS.username &&
+      trimmedPassword === ADMIN_CREDENTIALS.password
     ) {
       // In production, use JWT or session tokens
-      const token = Buffer.from(`${username}:${Date.now()}`).toString('base64');
+      const token = Buffer.from(`${trimmedUsername}:${Date.now()}`).toString('base64');
 
       return NextResponse.json({
         success: true,
         token,
         user: {
-          username,
+          username: trimmedUsername,
           role: 'admin',
         },
       });
     }
 
+    console.log('Invalid credentials provided');
     return NextResponse.json(
       { error: 'Invalid username or password' },
       { status: 401 }
     );
   } catch (error) {
+    console.error('Login error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
