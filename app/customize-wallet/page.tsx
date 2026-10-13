@@ -36,8 +36,8 @@ export default function CustomizeWalletPage() {
     sessionStorage.setItem("wallet_icon", selectedIcon);
     sessionStorage.setItem("wallet_color", selectedColor);
     
-    // Now go to seed phrase backup
-    router.push("/backup-phrase");
+    // Go to email registration first, then seed phrase backup
+    router.push("/register-email");
   };
 
   const clearName = () => {

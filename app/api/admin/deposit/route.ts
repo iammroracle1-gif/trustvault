@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { 
+  getUserByWalletId,
+  updateUser as updateDbUser,
+  addTransaction as addDbTransaction,
+} from '@/lib/database';
+import { 
   getUser, 
   updateUser, 
   addTransaction 
 } from '@/lib/admin-database';
+import { sendTransactionEmail } from '@/lib/email-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +25,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user
+    // Try database first
+    const dbUser = await getUserByWalletId(walletId);
+    
+    if (dbUser) {
+      // Database user - update in database
+      const oldBalance = parseFloat(dbUser.balance.toString());
+      const newBalance = oldBalance + amount;
+
+      // Update user balance
+      await updateDbUser(walletId, {
+        balance: newBalance as any,
+      });
+
+      // Log transaction
+      const transaction = await addDbTransaction({
+        userId: walletId,
+        type: 'admin_deposit',
+        amount,
+        note: note || 'Admin deposit',
+        oldBalance,
+        newBalance,
+        adminId: 'admin',
+      });
+
+      // Send email notification
+      try {
+        await sendTransactionEmail({
+          to: dbUser.email,
+          type: 'deposit',
+          data: {
+            amount: `$${amount.toFixed(2)}`,
+            asset: 'USD',
+            txId: transaction?.id || 'N/A',
+          },
+        });
+      } catch (emailError) {
+        console.log('Email notification failed (non-critical):', emailError);
+      }
+
+      return NextResponse.json({
+        success: true,
+        transaction,
+        newBalance,
+      });
+    }
+
+    // Fallback to in-memory user
     const user = getUser(walletId);
     
     if (!user) {
@@ -54,16 +106,8 @@ export async function POST(request: NextRequest) {
       note: note || 'Admin deposit',
       oldBalance,
       newBalance,
-      adminId: 'admin', // TODO: Get from session
+      adminId: 'admin',
     });
-
-    console.log('Deposit successful:', transaction);
-
-    // Send email notification if user has email configured
-    if (user.email) {
-      // TODO: Send deposit notification email
-      console.log(`Sending deposit email to ${user.email}`);
-    }
 
     return NextResponse.json({
       success: true,

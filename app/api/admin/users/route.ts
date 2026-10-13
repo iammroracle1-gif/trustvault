@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { 
+  getAllUsers as getDbUsers,
+  getUserByWalletId,
+  updateUser as updateDbUser,
+} from '@/lib/database';
+import { 
   adminUsers, 
   getUser, 
   getAllUsers, 
@@ -14,6 +19,25 @@ export async function GET(request: NextRequest) {
     const walletId = searchParams.get('walletId');
 
     if (walletId) {
+      // Try database first
+      const dbUser = await getUserByWalletId(walletId);
+      if (dbUser) {
+        return NextResponse.json({
+          walletId: dbUser.wallet_id,
+          email: dbUser.email,
+          walletAddress: dbUser.wallet_address,
+          balance: parseFloat(dbUser.balance.toString()),
+          withdrawalRestricted: dbUser.withdrawal_restricted,
+          restrictionReason: dbUser.restriction_reason,
+          createdAt: dbUser.created_at,
+          lastActivity: dbUser.last_activity,
+          lastLogin: dbUser.last_login,
+          totalTransactions: dbUser.total_transactions,
+          status: dbUser.status,
+        });
+      }
+      
+      // Fallback to in-memory
       const user = getUser(walletId);
       if (!user) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -21,11 +45,32 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(user);
     }
 
-    // Return all users
+    // Get all users - try database first
+    const dbUsers = await getDbUsers();
+    if (dbUsers && dbUsers.length > 0) {
+      return NextResponse.json(dbUsers.map(user => ({
+        walletId: user.wallet_id,
+        email: user.email,
+        walletAddress: user.wallet_address,
+        balance: parseFloat(user.balance.toString()),
+        withdrawalRestricted: user.withdrawal_restricted,
+        restrictionReason: user.restriction_reason,
+        createdAt: user.created_at,
+        lastActivity: user.last_activity,
+        lastLogin: user.last_login,
+        totalTransactions: user.total_transactions,
+        status: user.status,
+      })));
+    }
+
+    // Fallback to in-memory users
     const users = getAllUsers();
     return NextResponse.json(users);
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error fetching users:', error);
+    // Fallback to in-memory on error
+    const users = getAllUsers();
+    return NextResponse.json(users);
   }
 }
 
