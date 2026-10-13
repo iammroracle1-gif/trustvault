@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Copy, Check } from "lucide-react";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function BackupPhrasePage() {
   const router = useRouter();
   const [mnemonic, setMnemonic] = useState<string>("");
   const [words, setWords] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const [walletAddress, setWalletAddress] = useState("");
 
   useEffect(() => {
     const tempMnemonic = sessionStorage.getItem("temp_mnemonic");
@@ -26,10 +29,33 @@ export default function BackupPhrasePage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const address = sessionStorage.getItem("wallet_address");
     sessionStorage.removeItem("temp_mnemonic");
-    router.push(`/dashboard?address=${address}`);
+    
+    // Get wallet ID from localStorage (if exists from registration)
+    const walletId = localStorage.getItem('walletId');
+    
+    // Track login and send welcome email
+    if (walletId) {
+      try {
+        await fetch('/api/user/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ walletId }),
+        });
+      } catch (err) {
+        console.log('Login tracking failed (non-critical)');
+      }
+    }
+    
+    // Show loading screen
+    setWalletAddress(address || '');
+    setShowLoading(true);
+  };
+
+  const handleLoadingComplete = () => {
+    router.push(`/dashboard?address=${walletAddress}`);
   };
 
   if (!words.length) {
@@ -37,7 +63,10 @@ export default function BackupPhrasePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <>
+      {showLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
+      
+      <div className="min-h-screen bg-white flex flex-col">
       {/* Content */}
       <div className="flex-1 flex flex-col px-4 py-8">
         {/* Icon */}
@@ -106,5 +135,6 @@ export default function BackupPhrasePage() {
         </button>
       </div>
     </div>
+    </>
   );
 }
