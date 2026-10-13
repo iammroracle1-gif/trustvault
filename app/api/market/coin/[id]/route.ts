@@ -8,10 +8,10 @@ const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for individual coins
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const coinId = params.id;
+    const { id: coinId } = await params;
     const now = Date.now();
 
     // Check cache
