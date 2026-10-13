@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark Theme (Default) */
+:root,
+:root.dark {
+  --color-background: #0F1018;
+  --color-surface-primary: #191C2A;
+  --color-surface-secondary: #202437;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #9CA3AF;
+  --color-border: #303344;
+  
+  /* Default accent - Purple */
+  --color-accent-primary: #4938F5;
+  --color-accent-secondary: #75F59A;
+}
+
+/* Light Theme */
+:root.light {
+  --color-background: #F5F5F7;
+  --color-surface-primary: #FFFFFF;
+  --color-surface-secondary: #F9F9FB;
+  --color-text-primary: #1C1C1E;
+  --color-text-secondary: #6E6E73;
+  --color-border: #E5E5EA;
+  
+  /* Default accent - Purple */
+  --color-accent-primary: #4938F5;
+  --color-accent-secondary: #34C759;
+}
+
+/* Accent Color Variations */
+:root[data-accent="purple"],
+:root.dark[data-accent="purple"],
+:root.light[data-accent="purple"] {
+  --color-accent-primary: #4938F5;
+}
+
+:root[data-accent="blue"],
+:root.dark[data-accent="blue"],
+:root.light[data-accent="blue"] {
+  --color-accent-primary: #5AC8FA;
+}
+
+:root[data-accent="green"],
+:root.dark[data-accent="green"],
+:root.light[data-accent="green"] {
+  --color-accent-primary: #34C759;
+}
+
+:root[data-accent="orange"],
+:root.dark[data-accent="orange"],
+:root.light[data-accent="orange"] {
+  --color-accent-primary: #FF9500;
+}
+
+:root[data-accent="pink"],
+:root.dark[data-accent="pink"],
+:root.light[data-accent="pink"] {
+  --color-accent-primary: #FF2D55;
+}
+
+:root[data-accent="indigo"],
+:root.dark[data-accent="indigo"],
+:root.light[data-accent="indigo"] {
+  --color-accent-primary: #5856D6;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Invisible Scrollbar for iOS-style scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Smooth iOS-style scrolling */
+.scrollbar-hide {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+}
+
+/* Optional: Add scroll snap for better UX */
+.scrollbar-hide > * {
+  scroll-snap-align: start;
+}
