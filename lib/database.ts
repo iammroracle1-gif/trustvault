@@ -32,7 +32,10 @@ export interface DatabaseTransaction {
 // Check if database is available
 export async function isDatabaseAvailable(): Promise<boolean> {
   try {
-    if (!process.env.POSTGRES_URL) {
+    // Check for any Postgres environment variable
+    if (!process.env.POSTGRES_URL && 
+        !process.env.POSTGRES_PRISMA_URL && 
+        !process.env.POSTGRES_URL_NON_POOLING) {
       console.log('Database not configured - using in-memory storage');
       return false;
     }

@@ -3,8 +3,10 @@ import { sql } from '@vercel/postgres';
 
 export async function GET() {
   try {
-    // Check if database is configured
-    if (!process.env.POSTGRES_URL) {
+    // Check if database is configured - check multiple env vars for different providers
+    if (!process.env.POSTGRES_URL && 
+        !process.env.POSTGRES_PRISMA_URL && 
+        !process.env.POSTGRES_URL_NON_POOLING) {
       return NextResponse.json({
         success: false,
         error: 'Database not configured. Add Vercel Postgres in your Vercel dashboard.',
