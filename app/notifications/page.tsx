@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, ArrowUpRight, TrendingUp, Shield, Sparkles, ArrowDownLeft } from "lucide-react";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 interface Notification {
   id: string;
   type: "transaction" | "price" | "news" | "security";

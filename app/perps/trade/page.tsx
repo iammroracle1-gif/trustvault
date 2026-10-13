@@ -4,6 +4,10 @@ import { useState, Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { X, Menu, ChevronRight } from "lucide-react";
 
+// Force dynamic rendering - no static generation
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 function TradePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -13,6 +13,10 @@ import { fetchMarketTickers, formatPrice, type MarketTicker } from "@/lib/market
 import { getEthereumBalance } from "@/lib/api/ethereum";
 import { formatCurrency, shortenAddress, formatPercentage } from "@/lib/utils";
 
+// Force dynamic rendering - no static generation
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface Transaction {
   id: string;
   type: string;
