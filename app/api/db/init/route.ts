@@ -70,17 +70,6 @@ export async function GET() {
     await sql`CREATE INDEX IF NOT EXISTS idx_users_status ON users(status)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`;
 
-    // Insert demo users if table is empty
-    const usersCount = await sql`SELECT COUNT(*) as count FROM users`;
-    if (usersCount.rows[0].count === '0') {
-      await sql`
-        INSERT INTO users (wallet_id, email, wallet_address, balance, withdrawal_restricted, restriction_reason, total_transactions, status)
-        VALUES 
-          ('demo-wallet-1', 'demo1@trustvault.app', '0x1234567890abcdef1234567890abcdef12345678', 5000.00, false, '', 45, 'active'),
-          ('demo-wallet-2', 'demo2@trustvault.app', '0xabcdef1234567890abcdef1234567890abcdef12', 12000.50, true, 'Pending KYC verification', 23, 'restricted')
-      `;
-    }
-
     return NextResponse.json({
       success: true,
       message: 'Database initialized successfully',

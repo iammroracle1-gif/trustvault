@@ -157,16 +157,27 @@ export default function AdminPanel() {
 
   return (
     <div className="flex h-screen bg-[#0F1018] overflow-hidden">
+      {/* Mobile Menu Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#1C1C1E] border-r border-white/10 transition-all duration-300 flex flex-col`}>
+      <aside className={`
+        fixed lg:relative inset-y-0 left-0 z-50
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${sidebarOpen ? 'w-64' : 'w-64 lg:w-20'}
+        bg-[#1C1C1E] border-r border-white/10 transition-all duration-300 flex flex-col
+      `}>
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
-          {sidebarOpen && (
-            <div>
-              <h1 className="text-white text-[18px] font-bold">Trust Vault Admin</h1>
-              <p className="text-[#8E8E93] text-[11px]">Control Panel</p>
-            </div>
-          )}
+          <div className={sidebarOpen ? '' : 'lg:hidden'}>
+            <h1 className="text-white text-[18px] font-bold">Trust Vault Admin</h1>
+            <p className="text-[#8E8E93] text-[11px]">Control Panel</p>
+          </div>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2 hover:bg-white/5 rounded-lg transition-colors"
@@ -184,7 +195,10 @@ export default function AdminPanel() {
             return (
               <button
                 key={item.id}
-                onClick={() => setCurrentView(item.id)}
+                onClick={() => {
+                  setCurrentView(item.id);
+                  setSidebarOpen(false); // Close on mobile after selecting
+                }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
                   isActive
                     ? 'bg-[#4938F5] text-white'
@@ -193,64 +207,70 @@ export default function AdminPanel() {
                 title={!sidebarOpen ? item.label : ''}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" strokeWidth={2} />
-                {sidebarOpen && (
-                  <span className="text-[15px] font-medium">{item.label}</span>
-                )}
+                <span className={`text-[15px] font-medium ${sidebarOpen ? '' : 'lg:hidden'}`}>
+                  {item.label}
+                </span>
               </button>
             );
           })}
         </nav>
 
         {/* Admin Info */}
-        {sidebarOpen && (
-          <div className="p-4 border-t border-white/10">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#4938F5] rounded-full flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="text-white text-[13px] font-medium">Admin User</p>
-                <p className="text-[#8E8E93] text-[11px]">Super Admin</p>
-              </div>
+        <div className={`p-4 border-t border-white/10 ${sidebarOpen ? '' : 'lg:hidden'}`}>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-[#4938F5] rounded-full flex items-center justify-center">
+              <Shield className="w-5 h-5 text-white" />
             </div>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#FF453A]/20 hover:bg-[#FF453A]/30 text-[#FF453A] text-[13px] font-medium rounded-lg transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </button>
+            <div>
+              <p className="text-white text-[13px] font-medium">Admin User</p>
+              <p className="text-[#8E8E93] text-[11px]">Super Admin</p>
+            </div>
           </div>
-        )}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#FF453A]/20 hover:bg-[#FF453A]/30 text-[#FF453A] text-[13px] font-medium rounded-lg transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden flex flex-col">
         {/* Top Bar */}
-        <header className="h-16 bg-[#1C1C1E] border-b border-white/10 flex items-center justify-between px-6">
-          <div>
-            <h2 className="text-white text-[20px] font-semibold">
-              {menuItems.find(m => m.id === currentView)?.label}
-            </h2>
-            <p className="text-[#8E8E93] text-[13px]">
-              {currentView === 'dashboard' && `${stats.totalUsers} total users`}
-              {currentView === 'users' && `Manage ${stats.totalUsers} users`}
-              {currentView === 'transactions' && 'View all transactions'}
-              {currentView === 'reports' && 'Analytics and insights'}
-              {currentView === 'settings' && 'Configure admin settings'}
-            </p>
+        <header className="h-16 bg-[#1C1C1E] border-b border-white/10 flex items-center justify-between px-4 lg:px-6">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 hover:bg-white/5 rounded-lg transition-colors"
+            >
+              <Menu className="w-5 h-5 text-white" />
+            </button>
+            <div>
+              <h2 className="text-white text-[18px] lg:text-[20px] font-semibold">
+                {menuItems.find(m => m.id === currentView)?.label}
+              </h2>
+              <p className="text-[#8E8E93] text-[11px] lg:text-[13px]">
+                {currentView === 'dashboard' && `${stats.totalUsers} total users`}
+                {currentView === 'users' && `Manage ${stats.totalUsers} users`}
+                {currentView === 'transactions' && 'View all transactions'}
+                {currentView === 'reports' && 'Analytics and insights'}
+                {currentView === 'settings' && 'Configure admin settings'}
+              </p>
+            </div>
           </div>
           <button
             onClick={loadUsers}
-            className="flex items-center gap-2 px-4 py-2 bg-[#4938F5] text-white text-[13px] font-medium rounded-xl hover:bg-[#5D4EFF] transition-colors"
+            className="flex items-center gap-2 px-3 lg:px-4 py-2 bg-[#4938F5] text-white text-[12px] lg:text-[13px] font-medium rounded-xl hover:bg-[#5D4EFF] transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </button>
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
           {currentView === 'dashboard' && (
             <DashboardView stats={stats} users={users} />
           )}
@@ -389,8 +409,8 @@ function UsersView({ users, loading, searchQuery, setSearchQuery, onManageUser }
         />
       </div>
 
-      {/* Users Table */}
-      <div className="bg-[#1C1C1E] border border-white/10 rounded-2xl overflow-hidden">
+      {/* Users Table - Desktop */}
+      <div className="hidden lg:block bg-[#1C1C1E] border border-white/10 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -475,6 +495,69 @@ function UsersView({ users, loading, searchQuery, setSearchQuery, onManageUser }
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Users Cards - Mobile */}
+      <div className="lg:hidden space-y-3">
+        {loading ? (
+          <div className="bg-[#1C1C1E] border border-white/10 rounded-2xl p-6 text-center text-[#8E8E93]">
+            Loading users...
+          </div>
+        ) : users.length === 0 ? (
+          <div className="bg-[#1C1C1E] border border-white/10 rounded-2xl p-6 text-center text-[#8E8E93]">
+            No users found
+          </div>
+        ) : (
+          users.map((user: User) => (
+            <div key={user.walletId} className="bg-[#1C1C1E] border border-white/10 rounded-2xl p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <p className="text-white text-[15px] font-medium mb-1">{user.email}</p>
+                  <p className="text-[#8E8E93] text-[11px] font-mono">{user.walletId}</p>
+                </div>
+                {user.withdrawalRestricted ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#FF9500]/20 border border-[#FF9500]/30 text-[#FF9500] text-[11px] font-medium rounded-lg">
+                    <Ban className="w-3 h-3" />
+                    Restricted
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#34C759]/20 border border-[#34C759]/30 text-[#34C759] text-[11px] font-medium rounded-lg">
+                    <CheckCircle className="w-3 h-3" />
+                    Active
+                  </span>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <p className="text-[#8E8E93] text-[11px] mb-1">Balance</p>
+                  <p className="text-white text-[15px] font-semibold">${user.balance.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-[#8E8E93] text-[11px] mb-1">Transactions</p>
+                  <p className="text-white text-[15px]">{user.totalTransactions}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => onManageUser(user, 'deposit')}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-[#34C759] text-white text-[13px] font-medium rounded-lg hover:bg-[#30B350] transition-colors"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  Fund
+                </button>
+                <button
+                  onClick={() => onManageUser(user, 'edit')}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-[#4938F5] text-white text-[13px] font-medium rounded-lg hover:bg-[#5D4EFF] transition-colors"
+                >
+                  <Edit className="w-3.5 h-3.5" />
+                  Manage
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
