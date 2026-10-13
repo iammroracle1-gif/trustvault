@@ -45,7 +45,7 @@ export async function sendTransactionEmail(notification: EmailNotification) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Vaultora <notifications@vaultora.app>',
+        from: 'Trust Vault <onboarding@resend.dev>', // Use resend.dev for testing
         to: notification.to,
         subject: emailContent.subject,
         html: emailContent.html,
@@ -53,7 +53,9 @@ export async function sendTransactionEmail(notification: EmailNotification) {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to send email');
+      const errorData = await response.json();
+      console.error('Resend API error:', errorData);
+      throw new Error(`Failed to send email: ${JSON.stringify(errorData)}`);
     }
 
     console.log('Email sent successfully to', notification.to);

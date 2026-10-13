@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef, KeyboardEvent, ClipboardEvent } from "react";
+import { useState, useRef, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function ImportWalletPage() {
   const router = useRouter();
@@ -10,6 +11,8 @@ export default function ImportWalletPage() {
   const [currentInput, setCurrentInput] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const [walletAddress, setWalletAddress] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -41,11 +44,12 @@ export default function ImportWalletPage() {
         setError("");
       }
     } catch (err) {
-      console.error("Paste error:", err);
+      console.error("Paste failed:", err);
+      setError("Failed to paste. Please check clipboard permissions.");
     }
   };
 
-  const handleInputPaste = (e: ClipboardEvent<HTMLInputElement>) => {
+  const handleInputPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     handlePaste();
   };
@@ -74,21 +78,46 @@ export default function ImportWalletPage() {
         sessionStorage.setItem("wallet_address", wallet.address);
         sessionStorage.setItem("wallet_type", "imported");
 
-        router.push(`/dashboard?address=${wallet.address}`);
+        // Get wallet ID from localStorage (if exists from previous registration)
+        const walletId = localStorage.getItem('walletId');
+        
+        // Track login and send email
+        if (walletId) {
+          try {
+            await fetch('/api/user/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ walletId }),
+            });
+          } catch (err) {
+            console.log('Login tracking failed (non-critical)');
+          }
+        }
+
+        // Store wallet address and show loading screen
+        setWalletAddress(wallet.address);
+        setShowLoading(true);
       } catch (err: any) {
         console.error("Import error:", err);
         setError("Invalid seed phrase. Please check your words and try again.");
+        setLoading(false);
       }
     } catch (err) {
       console.error("Validation error:", err);
       setError("Failed to import wallet. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
 
+  const handleLoadingComplete = () => {
+    router.push(`/dashboard?address=${walletAddress}`);
+  };
+
   return (
-    <div className="min-h-screen bg-[#0F1018]">
+    <>
+      {showLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
+      
+      <div className="min-h-screen bg-[#0F1018]">
       {/* Simple Back Button */}
       <div className="flex items-center px-4 py-3">
         <button
@@ -205,5 +234,6 @@ export default function ImportWalletPage() {
         </button>
       </div>
     </div>
+    </>
   );
 }
