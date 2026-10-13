@@ -192,6 +192,32 @@ export async function updateLastLogin(walletId: string): Promise<void> {
   }
 }
 
+// Delete user permanently
+export async function deleteUser(walletId: string): Promise<boolean> {
+  try {
+    if (!(await isDatabaseAvailable())) {
+      return false;
+    }
+
+    // Delete user's transactions first (foreign key constraint)
+    await sql`
+      DELETE FROM transactions 
+      WHERE user_id = ${walletId}
+    `;
+
+    // Delete user
+    await sql`
+      DELETE FROM users 
+      WHERE wallet_id = ${walletId}
+    `;
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return false;
+  }
+}
+
 // Add transaction
 export async function addTransaction(data: {
   userId: string;

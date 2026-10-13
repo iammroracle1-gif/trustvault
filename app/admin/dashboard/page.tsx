@@ -22,7 +22,8 @@ import {
   Menu,
   X,
   PlusCircle,
-  LogOut
+  LogOut,
+  Trash2
 } from "lucide-react";
 
 interface User {
@@ -121,6 +122,28 @@ export default function AdminPanel() {
       }
     } catch (error) {
       console.error('Error updating user:', error);
+    }
+  };
+
+  const handleDeleteUser = async (walletId: string) => {
+    if (!confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users?walletId=${walletId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        await loadUsers();
+        alert('User deleted successfully');
+      } else {
+        alert('Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Error deleting user');
     }
   };
 
@@ -289,6 +312,7 @@ export default function AdminPanel() {
                   setShowEditModal(true);
                 }
               }}
+              onDeleteUser={handleDeleteUser}
             />
           )}
           
@@ -394,7 +418,7 @@ function DashboardView({ stats, users }: { stats: any; users: User[] }) {
 }
 
 // Users View Component
-function UsersView({ users, loading, searchQuery, setSearchQuery, onManageUser }: any) {
+function UsersView({ users, loading, searchQuery, setSearchQuery, onManageUser, onDeleteUser }: any) {
   return (
     <div className="space-y-4">
       {/* Search */}
@@ -487,6 +511,12 @@ function UsersView({ users, loading, searchQuery, setSearchQuery, onManageUser }
                           <Edit className="w-3.5 h-3.5" />
                           Manage
                         </button>
+                        <button
+                          onClick={() => onDeleteUser(user.walletId)}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF453A] text-white text-[13px] font-medium rounded-lg hover:bg-[#FF3B30] transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -539,20 +569,26 @@ function UsersView({ users, loading, searchQuery, setSearchQuery, onManageUser }
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => onManageUser(user, 'deposit')}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-[#34C759] text-white text-[13px] font-medium rounded-lg hover:bg-[#30B350] transition-colors"
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[#34C759] text-white text-[12px] font-medium rounded-lg hover:bg-[#30B350] transition-colors"
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
                   Fund
                 </button>
                 <button
                   onClick={() => onManageUser(user, 'edit')}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-[#4938F5] text-white text-[13px] font-medium rounded-lg hover:bg-[#5D4EFF] transition-colors"
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[#4938F5] text-white text-[12px] font-medium rounded-lg hover:bg-[#5D4EFF] transition-colors"
                 >
                   <Edit className="w-3.5 h-3.5" />
-                  Manage
+                  Edit
+                </button>
+                <button
+                  onClick={() => onDeleteUser(user.walletId)}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[#FF453A] text-white text-[12px] font-medium rounded-lg hover:bg-[#FF3B30] transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>

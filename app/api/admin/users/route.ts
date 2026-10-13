@@ -3,6 +3,7 @@ import {
   getAllUsers as getDbUsers,
   getUserByWalletId,
   updateUser as updateDbUser,
+  deleteUser as deleteDbUser,
 } from '@/lib/database';
 import { 
   adminUsers, 
@@ -136,13 +137,22 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Wallet ID required' }, { status: 400 });
     }
 
+    // Delete from database
+    const deleted = await deleteDbUser(walletId);
+    
+    // Also delete from in-memory cache
     adminUsers.delete(walletId);
+
+    if (!deleted) {
+      console.log('Database delete failed, but removed from cache');
+    }
 
     return NextResponse.json({ 
       success: true,
       message: 'User deleted successfully' 
     });
   } catch (error) {
+    console.error('Error deleting user:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
