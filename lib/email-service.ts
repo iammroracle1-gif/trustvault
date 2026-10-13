@@ -29,7 +29,7 @@ export async function sendTransactionEmail(notification: EmailNotification) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Trust Vault <onboarding@resend.dev>', // Use resend.dev for testing
+        from: 'Trust Vault <notifications@trust-vault.live>',
         to: notification.to,
         subject: emailContent.subject,
         html: emailContent.html,
