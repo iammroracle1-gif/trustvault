@@ -10,32 +10,16 @@ interface EmailNotification {
 
 export async function sendTransactionEmail(notification: EmailNotification) {
   try {
-    // Get user's email preferences
-    const userPrefs = await getUserEmailPreferences(notification.to);
-    
-    if (!userPrefs || !userPrefs.enabled) {
-      console.log('Email notifications disabled for user');
-      return;
-    }
-
-    // Check if this notification type is enabled
-    const notifTypeMap: Record<string, keyof typeof userPrefs.notifications> = {
-      'deposit': 'deposits',
-      'withdrawal': 'withdrawals',
-      'transfer': 'transfers',
-      'trade': 'trades',
-      'security': 'security',
-      'restriction': 'security',
-    };
-    
-    const prefKey = notifTypeMap[notification.type] || 'security';
-    if (!userPrefs.notifications[prefKey]) {
-      console.log(`${prefKey} notifications disabled for user`);
+    // Check if API key is configured
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not configured');
       return;
     }
 
     // Generate email content based on type
     const emailContent = generateEmailContent(notification);
+
+    console.log('Attempting to send email to:', notification.to);
 
     // Send email using Resend API
     const response = await fetch('https://api.resend.com/emails', {
@@ -58,8 +42,9 @@ export async function sendTransactionEmail(notification: EmailNotification) {
       throw new Error(`Failed to send email: ${JSON.stringify(errorData)}`);
     }
 
-    console.log('Email sent successfully to', notification.to);
-    return await response.json();
+    const result = await response.json();
+    console.log('Email sent successfully to', notification.to, 'ID:', result.id);
+    return result;
   } catch (error) {
     console.error('Error sending email:', error);
     throw error;
@@ -268,10 +253,53 @@ function generateEmailContent(notification: EmailNotification) {
                       <span class="detail-value">${notification.data.leverage}x</span>
                     </div>
                   </div>
-                  <a href="https://vaultora.app/perps" class="button">View Position</a>
+                  <a href="https://trustvault-beige.vercel.app/perps" class="button">View Position</a>
                 </div>
                 <div class="footer">
-                  <p>This is an automated notification from Vaultora.</p>
+                  <p>This is an automated notification from Trust Vault.</p>
+                </div>
+              </div>
+            </body>
+          </html>
+        `,
+      };
+
+    case 'security':
+      return {
+        subject: notification.data.title || '🔐 Trust Vault Security Alert',
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>${baseStyles}</head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1 style="color: white; margin: 0;">🔐 ${notification.data.title || 'Security Alert'}</h1>
+                </div>
+                <div class="content">
+                  <h2 class="title">${notification.data.title || 'Security Notification'}</h2>
+                  <p class="message">
+                    ${notification.data.message || 'You have a new security notification.'}
+                  </p>
+                  ${notification.data.walletAddress ? `
+                  <div class="details">
+                    <div class="detail-row">
+                      <span class="detail-label">Wallet Address</span>
+                      <span class="detail-value">${notification.data.walletAddress.slice(0, 20)}...</span>
+                    </div>
+                    ${notification.data.loginTime ? `
+                    <div class="detail-row">
+                      <span class="detail-label">Time</span>
+                      <span class="detail-value">${new Date(notification.data.loginTime).toLocaleString()}</span>
+                    </div>
+                    ` : ''}
+                  </div>
+                  ` : ''}
+                  <a href="https://trustvault-beige.vercel.app/dashboard" class="button">Open Trust Vault</a>
+                </div>
+                <div class="footer">
+                  <p>This is an automated notification from Trust Vault.</p>
+                  <p>If you didn't perform this action, please secure your account immediately.</p>
                 </div>
               </div>
             </body>
@@ -281,8 +309,8 @@ function generateEmailContent(notification: EmailNotification) {
 
     default:
       return {
-        subject: 'Vaultora Notification',
-        html: `<p>You have a new notification from Vaultora.</p>`,
+        subject: 'Trust Vault Notification',
+        html: `<p>You have a new notification from Trust Vault.</p>`,
       };
   }
 }
