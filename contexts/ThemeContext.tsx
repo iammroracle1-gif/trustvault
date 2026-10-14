@@ -10,7 +10,11 @@ interface ThemeContextType {
   setTheme: (theme: Theme) => void;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType>({
+  theme: 'dark',
+  toggleTheme: () => {},
+  setTheme: () => {},
+});
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('dark');
@@ -18,16 +22,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Load theme from localStorage on mount
+    setMounted(true);
     const savedTheme = localStorage.getItem('app_theme') as Theme;
     if (savedTheme) {
       setThemeState(savedTheme);
     }
-    setMounted(true);
   }, []);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('app_theme', newTheme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('app_theme', newTheme);
+    }
   };
 
   const toggleTheme = () => {
@@ -49,8 +55,5 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function useTheme() {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
   return context;
 }

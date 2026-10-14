@@ -13,6 +13,7 @@ import { WalletIcons } from "@/components/WalletIcons";
 import { fetchMarketTickers, formatPrice, type MarketTicker } from "@/lib/market-api";
 import { getEthereumBalance } from "@/lib/api/ethereum";
 import { formatCurrency, shortenAddress, formatPercentage } from "@/lib/utils";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface Transaction {
   id: string;
@@ -37,6 +38,7 @@ function DashboardContent() {
   const router = useRouter();
   const fullAddress = searchParams?.get("address") || "0x742d35Ec3B1B4E5C19e8Ba7a1A2c6fAd4Be4a2f";
   const address = shortenAddress(fullAddress);
+  const { theme } = useTheme();
   
   const [showReceive, setShowReceive] = useState(false);
   const [showSend, setShowSend] = useState(false);
@@ -293,10 +295,17 @@ function DashboardContent() {
 
   const activeWallet = wallets.find((w) => w.isActive) || wallets[0];
 
+  // Theme-aware colors
+  const bgPrimary = theme === 'dark' ? 'bg-[#0F1018]' : 'bg-[#F5F5F7]';
+  const bgSecondary = theme === 'dark' ? 'bg-[#191C2A]' : 'bg-white';
+  const textPrimary = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textSecondary = theme === 'dark' ? 'text-[#8E8E93]' : 'text-gray-500';
+  const borderColor = theme === 'dark' ? 'border-[#303344]' : 'border-gray-200';
+
   return (
-    <div className="min-h-screen bg-[#0F1018] pb-20">
+    <div className={`min-h-screen ${bgPrimary} pb-20`}>
       {/* Header */}
-      <div className="px-6 py-6 bg-[#191C2A] border-b border-[#303344]">
+      <div className={`px-6 py-6 ${bgSecondary} border-b ${borderColor}`}>
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => setShowWalletModal(true)}
