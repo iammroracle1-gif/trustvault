@@ -346,7 +346,7 @@ function DashboardContent() {
             </div>
           ) : (
             <h1 className="text-4xl font-bold text-white mb-2">
-              ${totalBalance.toFixed(2)}
+              ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h1>
           )}
         </div>

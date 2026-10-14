@@ -211,7 +211,7 @@ export default function SendModal({ onClose, balance }: SendModalProps) {
                   </button>
                 </div>
                 <p className="text-[#8E8E93] text-[13px] mt-2">
-                  Available: ${balance.toFixed(2)}
+                  Available: ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
 
@@ -250,7 +250,7 @@ export default function SendModal({ onClose, balance }: SendModalProps) {
                 </div>
                 <p className="text-[#8E8E93] text-[15px] mb-2">You're sending</p>
                 <h3 className="text-white text-[32px] font-bold mb-1">{amount} {selectedAsset}</h3>
-                <p className="text-[#8E8E93] text-[15px]">≈ ${(parseFloat(amount) * 1).toFixed(2)}</p>
+                <p className="text-[#8E8E93] text-[15px]">≈ ${(parseFloat(amount) * 1).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
 
               {/* Details */}
