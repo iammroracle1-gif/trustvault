@@ -1,0 +1,26 @@
+{
+  "name": "Trust Vault",
+  "short_name": "Trust Vault",
+  "description": "Your Crypto. Your Control. Secure cryptocurrency wallet with full control over your assets.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F1018",
+  "theme_color": "#4938F5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "utilities"],
+  "screenshots": []
+}
