@@ -3,6 +3,8 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Star, Send, ArrowDownToLine, RefreshCw, Sparkles } from "lucide-react";
+import SendModal from "@/components/SendModal";
+import ReceiveModal from "@/components/ReceiveModal";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -101,22 +103,48 @@ function AssetDetailContent() {
     return `M ${points.join(' L ')}`;
   };
 
+  // Load favorites from localStorage
+  useEffect(() => {
+    const favorites = localStorage.getItem('favorites');
+    if (favorites) {
+      const favArray = JSON.parse(favorites);
+      setIsFavorite(favArray.includes(symbol));
+    }
+  }, [symbol]);
+
+  const toggleFavorite = () => {
+    const favorites = localStorage.getItem('favorites');
+    let favArray: string[] = favorites ? JSON.parse(favorites) : [];
+    
+    if (isFavorite) {
+      favArray = favArray.filter(s => s !== symbol);
+    } else {
+      favArray.push(symbol);
+    }
+    
+    localStorage.setItem('favorites', JSON.stringify(favArray));
+    setIsFavorite(!isFavorite);
+  };
+
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [showReceiveModal, setShowReceiveModal] = useState(false);
+
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
       {/* Header - Fixed */}
       <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 pt-12">
         <button
-          onClick={() => router.push('/markets')}
+          onClick={() => router.push('/dashboard')}
           className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-all active:scale-95"
         >
           <ArrowLeft className="w-6 h-6 text-gray-900" strokeWidth={2.5} />
         </button>
         <button
-          onClick={() => setIsFavorite(!isFavorite)}
+          onClick={toggleFavorite}
           className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-all active:scale-95"
         >
           <Star 
-            className={`w-6 h-6 ${isFavorite ? 'fill-blue-500 text-blue-500' : 'text-blue-500'}`} 
+            className={`w-6 h-6 ${isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-gray-400'}`} 
             strokeWidth={2.5} 
           />
         </button>
@@ -125,17 +153,16 @@ function AssetDetailContent() {
       {/* Asset Info */}
       <div className="flex-shrink-0 px-6 pt-2 pb-4">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center">
-            <img
-              src={`https://cryptologos.cc/logos/${asset.name.toLowerCase()}-${asset.symbol.toLowerCase()}-logo.png`}
-              alt={asset.symbol}
-              className="w-10 h-10"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
-            />
-          </div>
+          <img
+            src={`https://cryptologos.cc/logos/${asset.name.toLowerCase()}-${asset.symbol.toLowerCase()}-logo.png`}
+            alt={asset.symbol}
+            className="w-14 h-14 object-contain"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.onerror = null;
+              target.src = `https://assets.coincap.io/assets/icons/${asset.symbol.toLowerCase()}@2x.png`;
+            }}
+          />
           <div>
             <h1 className="text-[18px] font-bold text-gray-900">{asset.symbol}</h1>
             <p className="text-[14px] text-gray-500">{asset.name}</p>
@@ -204,16 +231,16 @@ function AssetDetailContent() {
         </div>
       </div>
 
-      {/* Bottom Section - Flexible */}
-      <div className="flex-1 px-6 pb-6 flex flex-col">
+      {/* Bottom Section - Dark Footer with our background color */}
+      <div className="flex-1 bg-[#0F1018] rounded-t-3xl px-6 pt-6 pb-6 flex flex-col">
         {/* Your Balance */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[14px] text-gray-500">Your balance</p>
+          <p className="text-[14px] text-[#8E8E93]">Your balance</p>
           <div className="text-right">
-            <p className="text-[16px] font-semibold text-gray-900">
+            <p className="text-[16px] font-semibold text-white">
               ${asset.balanceUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            <p className="text-[12px] text-gray-400">
+            <p className="text-[12px] text-[#8E8E93]">
               {asset.balance} {asset.symbol}
             </p>
           </div>
@@ -221,41 +248,76 @@ function AssetDetailContent() {
 
         {/* Action Buttons */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <button className="py-3 bg-gray-100 rounded-xl flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-            <Send className="w-5 h-5 text-gray-700" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-gray-700">Send</span>
+          <button 
+            onClick={() => setShowSendModal(true)}
+            className="py-3 bg-[#1C1C1E] hover:bg-[#2C2C2E] rounded-xl flex flex-col items-center gap-1.5 active:scale-95 transition-all"
+          >
+            <Send className="w-5 h-5 text-white" strokeWidth={2} />
+            <span className="text-[13px] font-medium text-white">Send</span>
           </button>
-          <button className="py-3 bg-gray-100 rounded-xl flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-            <ArrowDownToLine className="w-5 h-5 text-gray-700" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-gray-700">Receive</span>
+          <button 
+            onClick={() => setShowReceiveModal(true)}
+            className="py-3 bg-[#1C1C1E] hover:bg-[#2C2C2E] rounded-xl flex flex-col items-center gap-1.5 active:scale-95 transition-all"
+          >
+            <ArrowDownToLine className="w-5 h-5 text-white" strokeWidth={2} />
+            <span className="text-[13px] font-medium text-white">Receive</span>
           </button>
-          <button className="py-3 bg-gray-100 rounded-xl flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-            <RefreshCw className="w-5 h-5 text-gray-700" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-gray-700">Swap</span>
+          <button 
+            onClick={() => alert('Swap feature coming soon!')}
+            className="py-3 bg-[#1C1C1E] hover:bg-[#2C2C2E] rounded-xl flex flex-col items-center gap-1.5 active:scale-95 transition-all"
+          >
+            <RefreshCw className="w-5 h-5 text-white" strokeWidth={2} />
+            <span className="text-[13px] font-medium text-white">Swap</span>
           </button>
         </div>
 
         {/* AI Summary */}
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-gray-900" strokeWidth={2} />
-            <h3 className="text-[15px] font-bold text-gray-900">AI Summary</h3>
+            <Sparkles className="w-4 h-4 text-white" strokeWidth={2} />
+            <h3 className="text-[15px] font-bold text-white">AI Summary</h3>
           </div>
-          <p className="text-[13px] text-gray-500 leading-relaxed line-clamp-2">
+          <p className="text-[13px] text-[#8E8E93] leading-relaxed line-clamp-2">
             {asset.description}
           </p>
         </div>
 
         {/* Buy/Sell Buttons - Push to bottom */}
         <div className="grid grid-cols-2 gap-3 mt-auto">
-          <button className="py-4 bg-green-500 hover:bg-green-600 text-white text-[17px] font-semibold rounded-3xl transition-all active:scale-[0.98]">
+          <button 
+            onClick={() => alert('Buy feature coming soon!')}
+            className="py-4 bg-green-500 hover:bg-green-600 text-white text-[17px] font-semibold rounded-3xl transition-all active:scale-[0.98]"
+          >
             Buy
           </button>
-          <button className="py-4 bg-red-500 hover:bg-red-600 text-white text-[17px] font-semibold rounded-3xl transition-all active:scale-[0.98]">
+          <button 
+            onClick={() => alert('Sell feature coming soon!')}
+            className="py-4 bg-red-500 hover:bg-red-600 text-white text-[17px] font-semibold rounded-3xl transition-all active:scale-[0.98]"
+          >
             Sell
           </button>
         </div>
       </div>
+
+      {/* Send Modal */}
+      {showSendModal && (
+        <div className="fixed inset-0 z-50">
+          <SendModal 
+            balance={asset.balanceUSD} 
+            onClose={() => setShowSendModal(false)} 
+          />
+        </div>
+      )}
+
+      {/* Receive Modal */}
+      {showReceiveModal && (
+        <div className="fixed inset-0 z-50">
+          <ReceiveModal 
+            address={typeof window !== 'undefined' ? localStorage.getItem('wallet_address') || '0x742d35Ec3B1B4E5C19e8Ba7a1A2c6fAd4Be4a2f' : '0x742d35Ec3B1B4E5C19e8Ba7a1A2c6fAd4Be4a2f'}
+            onClose={() => setShowReceiveModal(false)} 
+          />
+        </div>
+      )}
     </div>
   );
 }

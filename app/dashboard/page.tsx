@@ -398,7 +398,7 @@ function DashboardContent() {
                 <div 
                   key={asset.id}
                   className="p-4 bg-[#191C2A] rounded-xl hover:bg-[#202437] cursor-pointer transition-colors"
-                  onClick={() => router.push("/markets")}
+                  onClick={() => router.push(`/asset/${asset.symbol}`)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
