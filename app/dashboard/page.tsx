@@ -98,6 +98,50 @@ function DashboardContent() {
     }
   };
 
+  // Fetch pending notifications (deposits approved by admin)
+  const fetchPendingNotifications = async () => {
+    try {
+      const walletId = localStorage.getItem('wallet_id');
+      if (!walletId) return;
+
+      // Get last check timestamp
+      const lastCheck = localStorage.getItem('last_notification_check') || '0';
+      
+      const response = await fetch(`/api/user/pending-notifications?walletId=${walletId}&lastCheck=${lastCheck}`);
+      const data = await response.json();
+
+      if (data.success && data.count > 0) {
+        console.log('🔔 New notifications:', data.count);
+
+        // Merge new notifications with existing ones
+        const existingNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+        const mergedNotifications = [...data.notifications, ...existingNotifications];
+        localStorage.setItem('notifications', JSON.stringify(mergedNotifications));
+
+        // Merge new activities with existing ones
+        const existingActivities = JSON.parse(localStorage.getItem('recentActivity') || '[]');
+        const mergedActivities = [...data.activities, ...existingActivities].slice(0, 50); // Keep last 50
+        localStorage.setItem('recentActivity', JSON.stringify(mergedActivities));
+        setRecentActivity(mergedActivities);
+
+        // Update unread count
+        const unread = mergedNotifications.filter((n: any) => !n.read).length;
+        setUnreadNotifications(unread);
+
+        console.log('✅ Notifications synced:', {
+          newNotifications: data.count,
+          totalNotifications: mergedNotifications.length,
+          unread
+        });
+      }
+
+      // Update last check timestamp
+      localStorage.setItem('last_notification_check', Date.now().toString());
+    } catch (error) {
+      console.error('❌ Failed to fetch pending notifications:', error);
+    }
+  };
+
   // Load wallets from localStorage on mount
   useEffect(() => {
     // Debug: Show wallet info
@@ -124,8 +168,14 @@ function DashboardContent() {
     // Fetch balance from database
     fetchBalance();
     
+    // Fetch pending notifications immediately
+    fetchPendingNotifications();
+    
     // Set up periodic balance sync (every 5 seconds)
     const balanceInterval = setInterval(fetchBalance, 5000);
+    
+    // Set up periodic notification polling (every 30 seconds)
+    const notificationInterval = setInterval(fetchPendingNotifications, 30000);
     
     // Check if there's a newly customized wallet from creation flow
     const walletName = sessionStorage.getItem("wallet_name");
@@ -183,7 +233,10 @@ function DashboardContent() {
     }
 
     // Cleanup interval on unmount
-    return () => clearInterval(balanceInterval);
+    return () => {
+      clearInterval(balanceInterval);
+      clearInterval(notificationInterval);
+    };
   }, []);
 
   useEffect(() => {
