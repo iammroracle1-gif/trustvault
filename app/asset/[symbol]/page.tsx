@@ -179,33 +179,24 @@ function AssetDetailContent() {
   const assetBalanceUSD = assetBalance * asset.price;
 
   return (
-    <div className="h-screen bg-[#0F1018] flex flex-col overflow-hidden">
-      {/* Header - Fixed */}
-      <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 pt-12">
+    <div className="h-screen bg-[#F5F5F7] flex flex-col overflow-hidden">
+      {/* Header with Back Button - Higher Up */}
+      <div className="flex-shrink-0 px-5 pt-8 pb-3">
         <button
           onClick={() => router.push('/dashboard')}
-          className="w-10 h-10 flex items-center justify-center hover:bg-white/5 rounded-full transition-all active:scale-95"
+          className="w-9 h-9 flex items-center justify-center hover:bg-black/5 rounded-full transition-all active:scale-95"
         >
-          <ArrowLeft className="w-6 h-6 text-white" strokeWidth={2.5} />
-        </button>
-        <button
-          onClick={toggleFavorite}
-          className="w-10 h-10 flex items-center justify-center hover:bg-white/5 rounded-full transition-all active:scale-95"
-        >
-          <Star 
-            className={`w-6 h-6 ${isFavorite ? 'fill-[#4938F5] text-[#4938F5]' : 'text-[#8E8E93]'}`} 
-            strokeWidth={2.5} 
-          />
+          <ArrowLeft className="w-5 h-5 text-gray-900" strokeWidth={2.5} />
         </button>
       </div>
 
-      {/* Asset Info */}
-      <div className="flex-shrink-0 px-6 pt-2 pb-4">
-        <div className="flex items-center gap-3 mb-6">
+      {/* Asset Info + Favorite on Same Line */}
+      <div className="flex-shrink-0 px-6 pb-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <img
             src={`https://cryptologos.cc/logos/${asset.name.toLowerCase()}-${asset.symbol.toLowerCase()}-logo.png`}
             alt={asset.symbol}
-            className="w-12 h-12 object-contain"
+            className="w-11 h-11 object-contain"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.onerror = null;
@@ -213,25 +204,34 @@ function AssetDetailContent() {
             }}
           />
           <div>
-            <h1 className="text-[17px] font-bold text-white">{asset.symbol}</h1>
-            <p className="text-[13px] text-[#8E8E93]">{asset.name}</p>
+            <h1 className="text-[16px] font-bold text-gray-900">{asset.symbol}</h1>
+            <p className="text-[12px] text-gray-500">{asset.name}</p>
           </div>
         </div>
-
-        {/* Price - Right Aligned */}
-        <div className="text-right">
-          <h2 className="text-[28px] font-bold text-white leading-none">
-            ${asset.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </h2>
-          <p className={`text-[14px] font-medium mt-1 ${isNegative ? 'text-[#FF453A]' : 'text-[#34C759]'}`}>
-            {isNegative ? '' : '+'}{asset.change.toFixed(2)} ({isNegative ? '' : '+'}{asset.changePct.toFixed(2)}%)
-          </p>
-        </div>
+        <button
+          onClick={toggleFavorite}
+          className="w-9 h-9 flex items-center justify-center hover:bg-black/5 rounded-full transition-all active:scale-95"
+        >
+          <Star 
+            className={`w-5 h-5 ${isFavorite ? 'fill-[#4938F5] text-[#4938F5]' : 'text-gray-400'}`} 
+            strokeWidth={2.5} 
+          />
+        </button>
       </div>
 
-      {/* Chart */}
-      <div className="flex-shrink-0 px-6 pb-4">
-        <div className="bg-transparent relative" style={{ height: '240px' }}>
+      {/* Price - Right Aligned */}
+      <div className="flex-shrink-0 px-6 pb-3 text-right">
+        <h2 className="text-[26px] font-bold text-gray-900 leading-none">
+          ${asset.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </h2>
+        <p className={`text-[13px] font-medium mt-1 ${isNegative ? 'text-[#FF453A]' : 'text-[#34C759]'}`}>
+          {isNegative ? '' : '+'}{asset.change.toFixed(2)} ({isNegative ? '' : '+'}{asset.changePct.toFixed(2)}%)
+        </p>
+      </div>
+
+      {/* Chart - Full Width, Reduced Height */}
+      <div className="flex-shrink-0 pb-2">
+        <div className="bg-transparent relative" style={{ height: '200px' }}>
           {chartData.length > 0 && (
             <svg 
               viewBox={`0 0 ${chartWidth} ${chartHeight}`}
@@ -240,7 +240,7 @@ function AssetDetailContent() {
             >
               <defs>
                 <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor={isNegative ? '#FF453A' : '#34C759'} stopOpacity="0.3" />
+                  <stop offset="0%" stopColor={isNegative ? '#FF453A' : '#34C759'} stopOpacity="0.2" />
                   <stop offset="100%" stopColor={isNegative ? '#FF453A' : '#34C759'} stopOpacity="0" />
                 </linearGradient>
               </defs>
@@ -262,16 +262,16 @@ function AssetDetailContent() {
           )}
         </div>
 
-        {/* Timeframe Selector */}
-        <div className="flex gap-2 mt-4 justify-center flex-wrap">
+        {/* Timeframe Selector - Single Line, Smaller */}
+        <div className="flex gap-1.5 mt-2 justify-center px-4">
           {timeframes.map((tf) => (
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all ${
+              className={`px-2 py-1 rounded-md text-[11px] font-medium transition-all ${
                 timeframe === tf
-                  ? 'bg-[#2C2C2E] text-white'
-                  : 'text-[#8E8E93]'
+                  ? 'bg-gray-200 text-gray-900'
+                  : 'text-gray-500'
               }`}
             >
               {tf}
@@ -280,20 +280,20 @@ function AssetDetailContent() {
         </div>
       </div>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-6">
+      {/* Fixed Content - No Scroll Needed */}
+      <div className="flex-1 flex flex-col px-6 pb-6">
         {/* Your Balance */}
-        <div className="flex items-center justify-between mb-5 pt-2">
-          <p className="text-[15px] text-[#8E8E93]">Your balance</p>
+        <div className="flex items-center justify-between mb-4 pt-1">
+          <p className="text-[14px] text-gray-500">Your balance</p>
           <div className="text-right">
             {loading ? (
-              <div className="h-5 w-20 bg-[#2C2C2E] rounded animate-pulse"></div>
+              <div className="h-5 w-20 bg-gray-200 rounded animate-pulse"></div>
             ) : (
               <>
-                <p className="text-[16px] font-semibold text-white">
+                <p className="text-[15px] font-semibold text-gray-900">
                   ${assetBalanceUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
-                <p className="text-[12px] text-[#8E8E93]">
+                <p className="text-[11px] text-gray-500">
                   {assetBalance.toFixed(8)} {asset.symbol}
                 </p>
               </>
@@ -301,54 +301,54 @@ function AssetDetailContent() {
           </div>
         </div>
 
-        {/* Action Buttons - Clean Padding */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        {/* Action Buttons - Light Mode Button Style */}
+        <div className="flex gap-2.5 mb-4">
           <button 
             onClick={() => setShowSendModal(true)}
-            className="py-4 bg-[#1C1C1E] hover:bg-[#2C2C2E] rounded-2xl flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
+            className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
           >
-            <Send className="w-5 h-5 text-white" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-white">Send</span>
+            <Send className="w-4 h-4 text-gray-700" strokeWidth={2} />
+            <span className="text-[13px] font-medium text-gray-700">Send</span>
           </button>
           <button 
             onClick={() => setShowReceiveModal(true)}
-            className="py-4 bg-[#1C1C1E] hover:bg-[#2C2C2E] rounded-2xl flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
+            className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
           >
-            <ArrowDownToLine className="w-5 h-5 text-white" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-white">Receive</span>
+            <ArrowDownToLine className="w-4 h-4 text-gray-700" strokeWidth={2} />
+            <span className="text-[13px] font-medium text-gray-700">Receive</span>
           </button>
           <button 
             onClick={() => alert('Swap feature coming soon!')}
-            className="py-4 bg-[#1C1C1E] hover:bg-[#2C2C2E] rounded-2xl flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
+            className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
           >
-            <RefreshCw className="w-5 h-5 text-white" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-white">Swap</span>
+            <RefreshCw className="w-4 h-4 text-gray-700" strokeWidth={2} />
+            <span className="text-[13px] font-medium text-gray-700">Swap</span>
           </button>
         </div>
 
-        {/* AI Summary */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-white" strokeWidth={2} />
-            <h3 className="text-[15px] font-bold text-white">AI Summary</h3>
+        {/* AI Summary - Compact */}
+        <div className="mb-4 flex-1 overflow-y-auto">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4 text-gray-900" strokeWidth={2} />
+            <h3 className="text-[14px] font-bold text-gray-900">AI Summary</h3>
           </div>
-          <p className="text-[13px] text-[#8E8E93] leading-relaxed">
+          <p className="text-[12px] text-gray-600 leading-relaxed">
             {asset.description}
           </p>
         </div>
 
-        {/* Long/Short Buttons */}
+        {/* Long/Short Buttons - Always Visible */}
         <div className="grid grid-cols-2 gap-3">
           <button 
             onClick={() => alert('Long position coming soon!')}
-            className="py-4 bg-[#34C759] hover:bg-[#2DB84F] text-white text-[17px] font-semibold rounded-[28px] transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            className="py-3.5 bg-[#34C759] hover:bg-[#2DB84F] text-white text-[16px] font-semibold rounded-[24px] transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
           >
             <TrendingUp className="w-5 h-5" strokeWidth={2.5} />
             Long
           </button>
           <button 
             onClick={() => alert('Short position coming soon!')}
-            className="py-4 bg-[#FF453A] hover:bg-[#E63B30] text-white text-[17px] font-semibold rounded-[28px] transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            className="py-3.5 bg-[#FF453A] hover:bg-[#E63B30] text-white text-[16px] font-semibold rounded-[24px] transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
           >
             <TrendingDown className="w-5 h-5" strokeWidth={2.5} />
             Short
@@ -382,8 +382,8 @@ function AssetDetailContent() {
 export default function AssetDetailPage() {
   return (
     <Suspense fallback={
-      <div className="h-screen bg-[#0F1018] flex items-center justify-center">
-        <p className="text-white">Loading...</p>
+      <div className="h-screen bg-[#F5F5F7] flex items-center justify-center">
+        <p className="text-gray-900">Loading...</p>
       </div>
     }>
       <AssetDetailContent />
