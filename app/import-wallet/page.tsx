@@ -121,7 +121,7 @@ export default function ImportWalletPage() {
       {/* Simple Back Button */}
       <div className="flex items-center px-4 py-3">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push('/welcome')}
           className="p-2 -ml-2 hover:bg-[#191C2A] rounded-lg transition-colors"
         >
           <ArrowLeft className="w-5 h-5 text-white" />

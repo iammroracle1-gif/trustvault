@@ -93,16 +93,20 @@ export default function EmailSettingsPage() {
     <div className="min-h-screen bg-[#0F1018] pb-6">
       {/* Header */}
       <div className="sticky top-0 bg-[#0F1018]/95 backdrop-blur-xl z-10 border-b border-white/5">
-        <div className="flex items-center px-4 h-11">
+        <div className="flex items-center justify-between px-4 h-14">
           <button
-            onClick={() => router.push('/settings')}
-            className="flex items-center gap-1 -ml-1 hover:opacity-70 transition-opacity active:scale-95"
+            onClick={() => {
+              console.log('Email settings back button clicked');
+              router.push('/settings');
+            }}
+            className="p-2 -ml-2 hover:bg-white/10 rounded-lg transition-all active:scale-95"
           >
-            <ArrowLeft className="w-[22px] h-[22px] text-white" strokeWidth={2.5} />
+            <ArrowLeft className="w-6 h-6 text-white" strokeWidth={2.5} />
           </button>
-          <h1 className="flex-1 text-center text-[17px] font-semibold text-white tracking-tight -ml-6">
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-white tracking-tight">
             Email Notifications
           </h1>
+          <div className="w-10"></div>
         </div>
       </div>
 

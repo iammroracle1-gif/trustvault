@@ -43,7 +43,7 @@ export default function SearchPage() {
       <div className="sticky top-0 bg-[#0F1018]/95 backdrop-blur-xl z-10 border-b border-white/5">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/dashboard')}
             className="w-9 h-9 flex items-center justify-center hover:bg-white/5 rounded-full transition-colors active:scale-90"
           >
             <ArrowLeft className="w-5 h-5 text-white" />

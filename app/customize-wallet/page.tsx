@@ -117,7 +117,7 @@ export default function CustomizeWalletPage() {
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between px-5 py-4">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push('/welcome')}
           className="p-2 -ml-2 hover:bg-white/5 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-6 h-6 text-white" />

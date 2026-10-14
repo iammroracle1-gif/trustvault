@@ -42,10 +42,13 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#303344]">
         <button
-          onClick={() => router.back()}
-          className="p-2 hover:bg-[#191C2A] rounded-lg transition-colors"
+          onClick={() => {
+            console.log('Back button clicked - going to dashboard');
+            router.push('/dashboard');
+          }}
+          className="p-2 -ml-2 hover:bg-[#191C2A] rounded-lg transition-colors active:scale-95"
         >
-          <ArrowLeft className="w-5 h-5 text-white" />
+          <ArrowLeft className="w-6 h-6 text-white" />
         </button>
         <h1 className="text-lg font-semibold text-white">Settings</h1>
         <div className="w-10" />

@@ -73,7 +73,7 @@ export default function NotificationsSettingsPage() {
       <div className="sticky top-0 bg-[#0F1018] z-10 border-b border-[#303344]">
         <div className="flex items-center justify-between px-4 py-3">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/settings')}
             className="p-2 -ml-2 hover:bg-[#191C2A] rounded-lg transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-white" />

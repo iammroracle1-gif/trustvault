@@ -63,9 +63,13 @@ export default function RegisterEmailPage() {
         return;
       }
 
-      // Store wallet ID and email in session
+      // Store wallet ID and email in BOTH session and localStorage
       sessionStorage.setItem("wallet_id", data.data.walletId);
       sessionStorage.setItem("wallet_email", email);
+      localStorage.setItem("wallet_id", data.data.walletId);
+      localStorage.setItem("wallet_email", email);
+      
+      console.log('✅ Wallet registered:', data.data.walletId);
 
       // Go to backup phrase page
       router.push("/backup-phrase");
@@ -82,7 +86,7 @@ export default function RegisterEmailPage() {
       <div className="sticky top-0 bg-[#0F1018]/95 backdrop-blur-xl z-10 border-b border-white/5">
         <div className="flex items-center px-4 h-14">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/welcome')}
             className="flex items-center gap-1 -ml-1 hover:opacity-70 transition-opacity active:scale-95"
           >
             <ArrowLeft className="w-[22px] h-[22px] text-white" strokeWidth={2.5} />

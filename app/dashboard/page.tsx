@@ -49,6 +49,7 @@ function DashboardContent() {
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   const [recentActivity, setRecentActivity] = useState<Transaction[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [totalBalance, setTotalBalance] = useState(0);
   const [wallets, setWallets] = useState<Wallet[]>([
     {
       id: "wallet-1",
@@ -59,11 +60,69 @@ function DashboardContent() {
     },
   ]);
 
+  // Fetch balance from database
+  const fetchBalance = async () => {
+    try {
+      const walletId = localStorage.getItem('wallet_id');
+      console.log('🔍 Fetching balance for wallet ID:', walletId);
+      
+      if (!walletId) {
+        console.warn('⚠️ No wallet ID found in localStorage');
+        return;
+      }
+
+      const response = await fetch(`/api/user/balance?walletId=${walletId}`);
+      const data = await response.json();
+
+      console.log('💰 Balance API response:', data);
+
+      if (data.success && typeof data.balance === 'number') {
+        setTotalBalance(data.balance);
+        // Update localStorage to keep it in sync
+        localStorage.setItem('balance', data.balance.toString());
+        console.log('✅ Balance synced from database:', data.balance);
+      } else {
+        console.error('❌ Failed to fetch balance:', data.error);
+      }
+    } catch (error) {
+      console.error('❌ Balance fetch error:', error);
+      // Fallback to localStorage if API fails
+      const savedBalance = localStorage.getItem('balance');
+      if (savedBalance) {
+        setTotalBalance(parseFloat(savedBalance));
+        console.log('📦 Using localStorage balance:', savedBalance);
+      }
+    }
+  };
+
   // Load wallets from localStorage on mount
   useEffect(() => {
+    // Debug: Show wallet info
+    const walletId = localStorage.getItem('wallet_id');
+    const walletEmail = localStorage.getItem('wallet_email');
+    const sessionWalletId = sessionStorage.getItem('wallet_id');
+    
+    console.log('🔍 Wallet Info on Dashboard:');
+    console.log('  - localStorage wallet_id:', walletId);
+    console.log('  - localStorage email:', walletEmail);
+    console.log('  - sessionStorage wallet_id:', sessionWalletId);
+    
+    if (!walletId && sessionWalletId) {
+      console.log('⚠️ wallet_id only in sessionStorage, copying to localStorage');
+      localStorage.setItem('wallet_id', sessionWalletId);
+      const email = sessionStorage.getItem('wallet_email');
+      if (email) localStorage.setItem('wallet_email', email);
+    }
+    
     // Load recent activity
     loadRecentActivity();
     loadUnreadNotifications();
+    
+    // Fetch balance from database
+    fetchBalance();
+    
+    // Set up periodic balance sync (every 5 seconds)
+    const balanceInterval = setInterval(fetchBalance, 5000);
     
     const savedWallets = localStorage.getItem("vaultora_wallets");
     if (savedWallets) {
@@ -76,6 +135,8 @@ function DashboardContent() {
         console.error("Error loading wallets:", error);
       }
     }
+
+    return () => clearInterval(balanceInterval);
 
     // Check if there's a newly customized wallet from creation flow
     const walletName = sessionStorage.getItem("wallet_name");
@@ -285,7 +346,7 @@ function DashboardContent() {
             </div>
           ) : (
             <h1 className="text-4xl font-bold text-white mb-2">
-              $0.00
+              ${totalBalance.toFixed(2)}
             </h1>
           )}
         </div>
@@ -449,7 +510,7 @@ function DashboardContent() {
       {/* Send Modal */}
       {showSend && (
         <SendModal
-          balance={0}
+          balance={totalBalance}
           onClose={() => setShowSend(false)}
         />
       )}

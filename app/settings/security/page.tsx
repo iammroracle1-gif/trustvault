@@ -45,7 +45,7 @@ export default function SecurityPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#303344]">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push('/settings')}
           className="p-2 hover:bg-[#191C2A] rounded-lg transition-colors"
         >
           <ArrowLeft className="w-6 h-6 text-white" />

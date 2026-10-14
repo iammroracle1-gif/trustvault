@@ -89,7 +89,7 @@ export default function AppearancePage() {
       <div className="sticky top-0 bg-[var(--color-background)] z-10 border-b border-[var(--color-border)]">
         <div className="flex items-center justify-between px-4 py-3">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/settings')}
             className="p-2 -ml-2 hover:bg-[var(--color-surface-primary)] rounded-lg transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-[var(--color-text-primary)]" />

@@ -14,7 +14,7 @@ interface Notification {
   message: string;
   time: string;
   read: boolean;
-  icon: any;
+  iconName: string; // Changed from icon to iconName
   color: string;
   timestamp: number;
 }
@@ -42,7 +42,7 @@ export default function NotificationsPage() {
             message: "Your wallet is secured with industry-standard encryption",
             time: "Just now",
             read: false,
-            icon: Shield,
+            iconName: "Shield",
             color: "#4938F5",
             timestamp: Date.now(),
           },
@@ -53,7 +53,7 @@ export default function NotificationsPage() {
             message: "Save your recovery phrase in a secure location. Never share it with anyone.",
             time: "Just now",
             read: false,
-            icon: Sparkles,
+            iconName: "Sparkles",
             color: "#FF9500",
             timestamp: Date.now() - 1000,
           },
@@ -64,6 +64,19 @@ export default function NotificationsPage() {
     } catch (error) {
       console.error('Failed to load notifications:', error);
     }
+  };
+
+  // Helper function to get icon component from name
+  const getIconComponent = (iconName: string) => {
+    const icons: Record<string, any> = {
+      Shield,
+      Sparkles,
+      ArrowUpRight,
+      TrendingUp,
+      ArrowDownLeft,
+      Check,
+    };
+    return icons[iconName] || Shield;
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -100,20 +113,23 @@ export default function NotificationsPage() {
     <div className="min-h-screen bg-[#0F1018]">
       {/* Header - Clean iOS */}
       <div className="sticky top-0 bg-[#0F1018]/95 backdrop-blur-xl z-10 border-b border-white/5">
-        <div className="flex items-center px-4 h-11">
+        <div className="flex items-center justify-between px-4 h-14">
           <button
-            onClick={() => router.back()}
-            className="flex items-center gap-1 -ml-1 hover:opacity-70 transition-opacity active:scale-95"
+            onClick={() => {
+              console.log('Back button clicked');
+              router.push('/dashboard');
+            }}
+            className="p-2 -ml-2 hover:bg-white/10 rounded-lg transition-all active:scale-95"
           >
-            <ArrowLeft className="w-[22px] h-[22px] text-white" strokeWidth={2.5} />
+            <ArrowLeft className="w-6 h-6 text-white" strokeWidth={2.5} />
           </button>
-          <h1 className="flex-1 text-center text-[17px] font-semibold text-white tracking-tight -ml-6">
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-white tracking-tight">
             Notifications
           </h1>
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="text-[13px] text-white font-medium hover:opacity-70"
+              className="text-[15px] text-[#4938F5] font-medium hover:opacity-70 px-2 py-1"
             >
               Read All
             </button>
@@ -155,7 +171,7 @@ export default function NotificationsPage() {
               </div>
               <div className="divide-y divide-white/5">
                 {today.map((notification) => {
-                  const IconComponent = notification.icon;
+                  const IconComponent = getIconComponent(notification.iconName);
                   return (
                     <button
                       key={notification.id}
@@ -210,7 +226,7 @@ export default function NotificationsPage() {
               </div>
               <div className="divide-y divide-white/5">
                 {earlier.map((notification) => {
-                  const IconComponent = notification.icon;
+                  const IconComponent = getIconComponent(notification.iconName);
                   return (
                     <button
                       key={notification.id}
