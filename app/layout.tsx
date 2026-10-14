@@ -36,11 +36,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* DNS Prefetch & Preconnect for faster external resource loading */}
+        <link rel="dns-prefetch" href="https://api.coinpaprika.com" />
+        <link rel="dns-prefetch" href="https://cryptologos.cc" />
+        <link rel="dns-prefetch" href="https://assets.coincap.io" />
+        <link rel="preconnect" href="https://api.coinpaprika.com" crossOrigin="anonymous" />
+        
+        {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Trust Vault" />
+        
+        {/* Preload critical assets */}
+        <link rel="preload" href="/icon.png" as="image" />
       </head>
       <body>
         <ThemeProvider>

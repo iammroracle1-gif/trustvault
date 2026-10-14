@@ -44,6 +44,7 @@ function DashboardContent() {
   const [showSend, setShowSend] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showCustomizeModal, setShowCustomizeModal] = useState(false);
+  const [editingWalletId, setEditingWalletId] = useState<string | null>(null);
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [cryptoAssets, setCryptoAssets] = useState<MarketTicker[]>([]);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
@@ -268,19 +269,38 @@ function DashboardContent() {
 
   const handleAddWallet = () => {
     setShowWalletModal(false);
+    setEditingWalletId(null);
+    setTimeout(() => setShowCustomizeModal(true), 200);
+  };
+
+  const handleEditWallet = (walletId: string) => {
+    setShowWalletModal(false);
+    setEditingWalletId(walletId);
     setTimeout(() => setShowCustomizeModal(true), 200);
   };
 
   const handleSaveWallet = (newWallet: { name: string; icon: string; color: string }) => {
-    const wallet: Wallet = {
-      id: `wallet-${Date.now()}`,
-      ...newWallet,
-      isActive: false,
-    };
-    const updatedWallets = [...wallets, wallet];
-    setWallets(updatedWallets);
-    // Persist to localStorage
-    localStorage.setItem("vaultora_wallets", JSON.stringify(updatedWallets));
+    if (editingWalletId) {
+      // Update existing wallet
+      const updatedWallets = wallets.map((w) =>
+        w.id === editingWalletId
+          ? { ...w, name: newWallet.name, icon: newWallet.icon, color: newWallet.color }
+          : w
+      );
+      setWallets(updatedWallets);
+      localStorage.setItem("vaultora_wallets", JSON.stringify(updatedWallets));
+      setEditingWalletId(null);
+    } else {
+      // Add new wallet
+      const wallet: Wallet = {
+        id: `wallet-${Date.now()}`,
+        ...newWallet,
+        isActive: false,
+      };
+      const updatedWallets = [...wallets, wallet];
+      setWallets(updatedWallets);
+      localStorage.setItem("vaultora_wallets", JSON.stringify(updatedWallets));
+    }
     setShowCustomizeModal(false);
   };
 
@@ -541,14 +561,19 @@ function DashboardContent() {
           onClose={() => setShowWalletModal(false)}
           onAddWallet={handleAddWallet}
           onSelectWallet={handleSelectWallet}
+          onEditWallet={handleEditWallet}
         />
       )}
 
       {/* Customize Wallet Modal */}
       {showCustomizeModal && (
         <CustomizeWalletModal
-          onClose={() => setShowCustomizeModal(false)}
+          onClose={() => {
+            setShowCustomizeModal(false);
+            setEditingWalletId(null);
+          }}
           onSave={handleSaveWallet}
+          editingWallet={editingWalletId ? wallets.find(w => w.id === editingWalletId) : undefined}
         />
       )}
     </div>
