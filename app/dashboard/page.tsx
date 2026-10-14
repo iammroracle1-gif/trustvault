@@ -145,12 +145,12 @@ function DashboardContent() {
     const walletAddress = sessionStorage.getItem("wallet_address");
     
     if (walletName && walletIcon && walletColor && walletAddress) {
-      // Create wallet with customization
+      // Create wallet with customization - Type assertion since we checked for null above
       const newWallet: Wallet = {
         id: `wallet-${Date.now()}`,
-        name: walletName,
-        icon: walletIcon,
-        color: walletColor,
+        name: walletName as string,
+        icon: walletIcon as string,
+        color: walletColor as string,
         isActive: true,
       };
       
