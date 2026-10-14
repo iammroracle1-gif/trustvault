@@ -263,3 +263,204 @@ function generateEmailContent(notification: EmailNotification) {
 
 // Export for use in API routes
 export { generateEmailContent };
+
+// Deposit Approved Email
+export async function sendDepositApprovedEmail(data: {
+  email: string;
+  amount: number;
+  crypto: string;
+  exchange: string;
+  transactionId: string;
+}) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not configured');
+      return;
+    }
+
+    const baseStyles = `
+      <style>
+        body { 
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; 
+          margin: 0; 
+          padding: 0; 
+          background-color: #000000; 
+        }
+        .container { 
+          max-width: 600px; 
+          margin: 0 auto; 
+          background-color: #1C1C1E; 
+        }
+        .header { 
+          padding: 32px 24px; 
+          border-bottom: 1px solid #2C2C2E;
+        }
+        .logo { 
+          color: #FFFFFF; 
+          font-size: 20px; 
+          font-weight: 600; 
+          letter-spacing: -0.5px;
+        }
+        .content { 
+          padding: 32px 24px; 
+        }
+        .success-badge {
+          display: inline-block;
+          background-color: #34C759;
+          color: #FFFFFF;
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 16px;
+        }
+        .title { 
+          font-size: 24px; 
+          font-weight: 600; 
+          margin: 0 0 12px 0; 
+          color: #FFFFFF; 
+          letter-spacing: -0.5px;
+        }
+        .amount {
+          font-size: 36px;
+          font-weight: 700;
+          color: #34C759;
+          margin: 16px 0;
+          letter-spacing: -1px;
+        }
+        .message { 
+          font-size: 15px; 
+          line-height: 1.5; 
+          color: #8E8E93; 
+          margin: 0 0 24px 0; 
+        }
+        .detail-box { 
+          background-color: #2C2C2E; 
+          border-radius: 12px; 
+          padding: 20px; 
+          margin: 24px 0; 
+        }
+        .detail-row { 
+          display: flex; 
+          justify-content: space-between; 
+          padding: 10px 0; 
+          border-bottom: 1px solid #3A3A3C;
+        }
+        .detail-row:last-child {
+          border-bottom: none;
+        }
+        .detail-label { 
+          color: #8E8E93; 
+          font-size: 14px; 
+        }
+        .detail-value { 
+          color: #FFFFFF; 
+          font-size: 14px; 
+          font-weight: 500; 
+        }
+        .button { 
+          display: inline-block; 
+          padding: 14px 28px; 
+          background-color: #4938F5; 
+          color: #FFFFFF; 
+          text-decoration: none; 
+          border-radius: 12px; 
+          font-weight: 600; 
+          font-size: 15px;
+          margin-top: 8px; 
+        }
+        .footer { 
+          padding: 24px; 
+          text-align: center; 
+          color: #8E8E93; 
+          font-size: 13px; 
+          border-top: 1px solid #2C2C2E; 
+        }
+      </style>
+    `;
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Trust Vault <notifications@trust-vault.live>',
+        to: data.email,
+        subject: `✅ Deposit Received - $${data.amount.toLocaleString()} ${data.crypto}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>${baseStyles}</head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <div class="logo">Trust Vault</div>
+                </div>
+                <div class="content">
+                  <div class="success-badge">Deposit Confirmed</div>
+                  <h1 class="title">Funds Received</h1>
+                  <div class="amount">+$${data.amount.toLocaleString()}</div>
+                  <p class="message">Your deposit from ${data.exchange} has been successfully credited to your Trust Vault wallet.</p>
+                  
+                  <div class="detail-box">
+                    <div class="detail-row">
+                      <span class="detail-label">From</span>
+                      <span class="detail-value">${data.exchange}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Cryptocurrency</span>
+                      <span class="detail-value">${data.crypto}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Amount (USD)</span>
+                      <span class="detail-value">$${data.amount.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Transaction ID</span>
+                      <span class="detail-value" style="font-family: 'SF Mono', monospace; font-size: 12px;">${data.transactionId}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Status</span>
+                      <span class="detail-value" style="color: #34C759;">Completed</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Time</span>
+                      <span class="detail-value">${new Date().toLocaleString()}</span>
+                    </div>
+                  </div>
+                  
+                  <a href="https://trust-vault.live/dashboard" class="button">View Balance</a>
+                  
+                  <p class="message" style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #2C2C2E;">
+                    Your funds are now available for trading, transfer, or withdrawal.
+                  </p>
+                </div>
+                <div class="footer">
+                  <p>Trust Vault - Secure Cryptocurrency Wallet</p>
+                  <p style="margin-top: 8px; color: #666;">If you didn't make this deposit, please contact support immediately.</p>
+                </div>
+              </div>
+            </body>
+          </html>
+        `,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Resend API error:', errorData);
+      throw new Error(`Failed to send email: ${JSON.stringify(errorData)}`);
+    }
+
+    const result = await response.json();
+    console.log('Deposit email sent successfully to', data.email, 'ID:', result.id);
+    return result;
+  } catch (error) {
+    console.error('Error sending deposit email:', error);
+    throw error;
+  }
+}

@@ -81,28 +81,49 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Deposit approved: ${wallet_id} received $${amount}`);
 
-    // Send email notification (using existing email service)
+    // Prepare transaction details for notifications
+    const exchanges = ['Binance', 'Coinbase', 'Kraken', 'Crypto.com'];
+    const randomExchange = exchanges[Math.floor(Math.random() * exchanges.length)];
+    const transactionId = `TX${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+
+    // Send email notification
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/send-notification`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          type: 'deposit_approved',
-          data: {
-            amount,
-            crypto,
-            wallet_id
-          }
-        })
+      const { sendDepositApprovedEmail } = await import('@/lib/email-service');
+      await sendDepositApprovedEmail({
+        email,
+        amount,
+        crypto,
+        exchange: randomExchange,
+        transactionId
       });
+      console.log('✅ Deposit email sent to:', email);
     } catch (emailError) {
-      console.error('Email notification failed:', emailError);
+      console.error('❌ Email notification failed:', emailError);
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Deposit approved and funds added'
+      message: 'Deposit approved and funds added',
+      notification: {
+        id: `notif-${Date.now()}`,
+        type: 'transaction',
+        title: 'Deposit Received',
+        message: `+$${amount.toLocaleString()} from ${randomExchange}`,
+        time: 'Just now',
+        read: false,
+        iconName: 'ArrowDownLeft',
+        color: '#34C759',
+        timestamp: Date.now()
+      },
+      activity: {
+        id: `tx-${Date.now()}`,
+        type: 'Received',
+        asset: crypto,
+        amount: `+$${amount.toLocaleString()}`,
+        time: 'Just now',
+        status: 'Completed',
+        address: randomExchange
+      }
     });
 
   } catch (error: any) {
