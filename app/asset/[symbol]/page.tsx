@@ -175,18 +175,37 @@ function AssetDetailContent() {
 
   const [showSendModal, setShowSendModal] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  // Load theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('app_theme') as 'dark' | 'light';
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+  }, []);
 
   const assetBalanceUSD = assetBalance * asset.price;
 
+  // Theme colors
+  const bgColor = theme === 'dark' ? 'bg-[#0F1018]' : 'bg-[#F5F5F7]';
+  const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textMuted = theme === 'dark' ? 'text-[#8E8E93]' : 'text-gray-500';
+  const hoverBg = theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-black/5';
+  const buttonBg = theme === 'dark' ? 'bg-[#1C1C1E] hover:bg-[#2C2C2E]' : 'bg-gray-200 hover:bg-gray-300';
+  const buttonText = theme === 'dark' ? 'text-white' : 'text-gray-700';
+  const loadingBg = theme === 'dark' ? 'bg-[#2C2C2E]' : 'bg-gray-200';
+  const timeframeBg = theme === 'dark' ? 'bg-[#2C2C2E]' : 'bg-gray-200';
+
   return (
-    <div className="h-screen bg-[#F5F5F7] flex flex-col overflow-hidden">
+    <div className={`h-screen ${bgColor} flex flex-col overflow-hidden`}>
       {/* Header with Back Button - Higher Up */}
       <div className="flex-shrink-0 px-5 pt-8 pb-3">
         <button
           onClick={() => router.push('/dashboard')}
-          className="w-9 h-9 flex items-center justify-center hover:bg-black/5 rounded-full transition-all active:scale-95"
+          className={`w-9 h-9 flex items-center justify-center ${hoverBg} rounded-full transition-all active:scale-95`}
         >
-          <ArrowLeft className="w-5 h-5 text-gray-900" strokeWidth={2.5} />
+          <ArrowLeft className={`w-5 h-5 ${textColor}`} strokeWidth={2.5} />
         </button>
       </div>
 
@@ -204,16 +223,16 @@ function AssetDetailContent() {
             }}
           />
           <div>
-            <h1 className="text-[16px] font-bold text-gray-900">{asset.symbol}</h1>
-            <p className="text-[12px] text-gray-500">{asset.name}</p>
+            <h1 className={`text-[16px] font-bold ${textColor}`}>{asset.symbol}</h1>
+            <p className={`text-[12px] ${textMuted}`}>{asset.name}</p>
           </div>
         </div>
         <button
           onClick={toggleFavorite}
-          className="w-9 h-9 flex items-center justify-center hover:bg-black/5 rounded-full transition-all active:scale-95"
+          className={`w-9 h-9 flex items-center justify-center ${hoverBg} rounded-full transition-all active:scale-95`}
         >
           <Star 
-            className={`w-5 h-5 ${isFavorite ? 'fill-[#4938F5] text-[#4938F5]' : 'text-gray-400'}`} 
+            className={`w-5 h-5 ${isFavorite ? 'fill-[#4938F5] text-[#4938F5]' : textMuted}`} 
             strokeWidth={2.5} 
           />
         </button>
@@ -221,7 +240,7 @@ function AssetDetailContent() {
 
       {/* Price - Right Aligned */}
       <div className="flex-shrink-0 px-6 pb-3 text-right">
-        <h2 className="text-[26px] font-bold text-gray-900 leading-none">
+        <h2 className={`text-[26px] font-bold ${textColor} leading-none`}>
           ${asset.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </h2>
         <p className={`text-[13px] font-medium mt-1 ${isNegative ? 'text-[#FF453A]' : 'text-[#34C759]'}`}>
@@ -270,8 +289,8 @@ function AssetDetailContent() {
               onClick={() => setTimeframe(tf)}
               className={`px-2 py-1 rounded-md text-[11px] font-medium transition-all ${
                 timeframe === tf
-                  ? 'bg-gray-200 text-gray-900'
-                  : 'text-gray-500'
+                  ? `${timeframeBg} ${textColor}`
+                  : textMuted
               }`}
             >
               {tf}
@@ -284,16 +303,16 @@ function AssetDetailContent() {
       <div className="flex-1 flex flex-col px-6 pb-6">
         {/* Your Balance */}
         <div className="flex items-center justify-between mb-4 pt-1">
-          <p className="text-[14px] text-gray-500">Your balance</p>
+          <p className={`text-[14px] ${textMuted}`}>Your balance</p>
           <div className="text-right">
             {loading ? (
-              <div className="h-5 w-20 bg-gray-200 rounded animate-pulse"></div>
+              <div className={`h-5 w-20 ${loadingBg} rounded animate-pulse`}></div>
             ) : (
               <>
-                <p className="text-[15px] font-semibold text-gray-900">
+                <p className={`text-[15px] font-semibold ${textColor}`}>
                   ${assetBalanceUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
-                <p className="text-[11px] text-gray-500">
+                <p className={`text-[11px] ${textMuted}`}>
                   {assetBalance.toFixed(8)} {asset.symbol}
                 </p>
               </>
@@ -305,34 +324,34 @@ function AssetDetailContent() {
         <div className="flex gap-2.5 mb-4">
           <button 
             onClick={() => setShowSendModal(true)}
-            className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+            className={`flex-1 py-2.5 ${buttonBg} rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all`}
           >
-            <Send className="w-4 h-4 text-gray-700" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-gray-700">Send</span>
+            <Send className={`w-4 h-4 ${buttonText}`} strokeWidth={2} />
+            <span className={`text-[13px] font-medium ${buttonText}`}>Send</span>
           </button>
           <button 
             onClick={() => router.push('/deposit')}
-            className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+            className={`flex-1 py-2.5 ${buttonBg} rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all`}
           >
-            <ArrowDownToLine className="w-4 h-4 text-gray-700" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-gray-700">Receive</span>
+            <ArrowDownToLine className={`w-4 h-4 ${buttonText}`} strokeWidth={2} />
+            <span className={`text-[13px] font-medium ${buttonText}`}>Receive</span>
           </button>
           <button 
             onClick={() => alert('Swap feature coming soon!')}
-            className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+            className={`flex-1 py-2.5 ${buttonBg} rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all`}
           >
-            <RefreshCw className="w-4 h-4 text-gray-700" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-gray-700">Swap</span>
+            <RefreshCw className={`w-4 h-4 ${buttonText}`} strokeWidth={2} />
+            <span className={`text-[13px] font-medium ${buttonText}`}>Swap</span>
           </button>
         </div>
 
         {/* AI Summary - Compact */}
         <div className="mb-4 flex-1 overflow-y-auto">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-gray-900" strokeWidth={2} />
-            <h3 className="text-[14px] font-bold text-gray-900">AI Summary</h3>
+            <Sparkles className={`w-4 h-4 ${textColor}`} strokeWidth={2} />
+            <h3 className={`text-[14px] font-bold ${textColor}`}>AI Summary</h3>
           </div>
-          <p className="text-[12px] text-gray-600 leading-relaxed">
+          <p className={`text-[12px] ${textMuted} leading-relaxed`}>
             {asset.description}
           </p>
         </div>
@@ -382,8 +401,8 @@ function AssetDetailContent() {
 export default function AssetDetailPage() {
   return (
     <Suspense fallback={
-      <div className="h-screen bg-[#F5F5F7] flex items-center justify-center">
-        <p className="text-gray-900">Loading...</p>
+      <div className="h-screen bg-[#0F1018] flex items-center justify-center">
+        <p className="text-white">Loading...</p>
       </div>
     }>
       <AssetDetailContent />

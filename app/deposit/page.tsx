@@ -117,17 +117,16 @@ export default function DepositPage() {
 
   return (
     <div className="min-h-screen bg-[#0F1018] pb-8">
-      {/* Header */}
-      <div className="px-6 py-6 bg-[#191C2A] border-b border-[#303344]">
-        <div className="flex items-center justify-between mb-2">
+      {/* Header - Compact */}
+      <div className="px-6 py-4 bg-[#191C2A] border-b border-[#303344]">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/dashboard")}
-            className="w-10 h-10 flex items-center justify-center hover:bg-[#202437] rounded-full transition-colors"
+            className="w-9 h-9 flex items-center justify-center hover:bg-[#202437] rounded-full transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-white" strokeWidth={2.5} />
           </button>
-          <h1 className="text-[20px] font-bold text-white">Deposit Funds</h1>
-          <div className="w-10"></div>
+          <h1 className="text-[17px] font-bold text-white">Deposit Funds</h1>
         </div>
       </div>
 
@@ -150,35 +149,35 @@ export default function DepositPage() {
         <>
           {/* Step 1: Select Cryptocurrency */}
           {!selectedCrypto ? (
-            <div className="px-6 py-6">
-              <h2 className="text-[18px] font-bold text-white mb-2">Select Cryptocurrency</h2>
-              <p className="text-[14px] text-[#8E8E93] mb-6">
-                Choose the cryptocurrency you want to deposit
+            <div className="px-6 py-4">
+              <h2 className="text-[16px] font-bold text-white mb-1">Select Cryptocurrency</h2>
+              <p className="text-[13px] text-[#8E8E93] mb-4">
+                Choose crypto to deposit
               </p>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {cryptoOptions.map((crypto) => (
                   <button
                     key={crypto.id}
                     onClick={() => setSelectedCrypto(crypto)}
-                    className="w-full p-4 bg-[#191C2A] hover:bg-[#202437] rounded-xl transition-all active:scale-[0.99] flex items-center justify-between"
+                    className="w-full p-3 bg-[#191C2A] hover:bg-[#202437] rounded-xl transition-all active:scale-[0.99] flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
                       <img
                         src={crypto.icon}
                         alt={crypto.symbol}
-                        className="w-12 h-12 rounded-full object-contain"
+                        className="w-10 h-10 rounded-full object-contain"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = "none";
                         }}
                       />
                       <div className="text-left">
-                        <p className="text-[16px] font-semibold text-white">{crypto.symbol}</p>
-                        <p className="text-[13px] text-[#8E8E93]">{crypto.name}</p>
+                        <p className="text-[15px] font-semibold text-white">{crypto.symbol}</p>
+                        <p className="text-[12px] text-[#8E8E93]">{crypto.name}</p>
                       </div>
                     </div>
-                    <div className="text-[13px] text-[#8E8E93]">
+                    <div className="text-[12px] text-[#8E8E93]">
                       {crypto.network}
                     </div>
                   </button>
@@ -186,64 +185,53 @@ export default function DepositPage() {
               </div>
             </div>
           ) : (
-            // Step 2: Deposit Instructions & Amount
-            <div className="px-6 py-6">
+            // Step 2: Deposit Instructions & Amount - COMPACT
+            <div className="px-6 py-4">
               {/* Selected Crypto Info */}
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4">
                 <img
                   src={selectedCrypto.icon}
                   alt={selectedCrypto.symbol}
-                  className="w-14 h-14 rounded-full object-contain"
+                  className="w-11 h-11 rounded-full object-contain"
                 />
                 <div className="flex-1">
-                  <p className="text-[18px] font-bold text-white">{selectedCrypto.symbol}</p>
-                  <p className="text-[13px] text-[#8E8E93]">{selectedCrypto.network}</p>
+                  <p className="text-[16px] font-bold text-white">{selectedCrypto.symbol}</p>
+                  <p className="text-[12px] text-[#8E8E93]">{selectedCrypto.network}</p>
                 </div>
                 <button
                   onClick={() => setSelectedCrypto(null)}
-                  className="text-[#4938F5] text-[14px] font-medium"
+                  className="text-[#4938F5] text-[13px] font-medium"
                 >
                   Change
                 </button>
               </div>
 
               {/* Deposit Amount Input */}
-              <div className="mb-6">
-                <label className="block text-white text-[15px] font-semibold mb-2">
-                  Deposit Amount (USD)
+              <div className="mb-4">
+                <label className="block text-white text-[14px] font-semibold mb-2">
+                  Amount (USD)
                 </label>
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="w-full px-4 py-4 bg-[#191C2A] border border-white/10 rounded-xl text-white text-[18px] placeholder-[#8E8E93] focus:outline-none focus:border-[#4938F5] transition-colors"
+                  className="w-full px-4 py-3 bg-[#191C2A] border border-white/10 rounded-xl text-white text-[16px] placeholder-[#8E8E93] focus:outline-none focus:border-[#4938F5] transition-colors"
                   step="0.01"
                   min="0"
                 />
-                <p className="text-[12px] text-[#8E8E93] mt-2">
-                  Minimum deposit: $10 USD
+                <p className="text-[11px] text-[#8E8E93] mt-1.5">
+                  Min: $10
                 </p>
               </div>
 
-              {/* QR Code */}
-              <div className="mb-6 bg-white p-6 rounded-2xl">
-                <QRCodeSVG
-                  value={selectedCrypto.address}
-                  size={200}
-                  level="H"
-                  includeMargin={false}
-                  className="w-full h-auto"
-                />
-              </div>
-
-              {/* Wallet Address */}
-              <div className="mb-6">
-                <label className="block text-white text-[15px] font-semibold mb-2">
+              {/* Wallet Address - Primary */}
+              <div className="mb-4">
+                <label className="block text-white text-[14px] font-semibold mb-2">
                   Deposit Address
                 </label>
-                <div className="flex items-center gap-2 p-4 bg-[#191C2A] rounded-xl border border-white/10">
-                  <p className="flex-1 text-white font-mono text-[13px] break-all">
+                <div className="flex items-center gap-2 p-3 bg-[#191C2A] rounded-xl border border-white/10">
+                  <p className="flex-1 text-white font-mono text-[12px] break-all">
                     {selectedCrypto.address}
                   </p>
                   <button
@@ -251,43 +239,47 @@ export default function DepositPage() {
                     className="p-2 hover:bg-[#202437] rounded-lg transition-colors flex-shrink-0"
                   >
                     {copied ? (
-                      <Check className="w-5 h-5 text-[#34C759]" />
+                      <Check className="w-4 h-4 text-[#34C759]" />
                     ) : (
-                      <Copy className="w-5 h-5 text-[#8E8E93]" />
+                      <Copy className="w-4 h-4 text-[#8E8E93]" />
                     )}
                   </button>
                 </div>
               </div>
 
-              {/* Instructions */}
-              <div className="mb-6 p-4 bg-[#4938F5]/10 border border-[#4938F5]/30 rounded-xl">
-                <div className="flex items-start gap-3">
-                  <Info className="w-5 h-5 text-[#4938F5] flex-shrink-0 mt-0.5" strokeWidth={2} />
+              {/* QR Code - Smaller */}
+              <div className="mb-4 bg-white p-4 rounded-xl flex justify-center">
+                <QRCodeSVG
+                  value={selectedCrypto.address}
+                  size={140}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+
+              {/* Instructions - Brief */}
+              <div className="mb-4 p-3 bg-[#4938F5]/10 border border-[#4938F5]/30 rounded-xl">
+                <div className="flex items-start gap-2">
+                  <Info className="w-4 h-4 text-[#4938F5] flex-shrink-0 mt-0.5" strokeWidth={2} />
                   <div>
-                    <p className="text-[15px] font-semibold text-white mb-2">How to Deposit</p>
-                    <ol className="space-y-2 text-[13px] text-[#8E8E93]">
-                      <li>1. Copy the wallet address or scan the QR code above</li>
-                      <li>2. Send {selectedCrypto.symbol} from your external wallet to this address</li>
-                      <li>3. Enter the amount you're depositing (in USD equivalent)</li>
-                      <li>4. Click "I Have Made Payment" button below</li>
-                      <li>5. Wait for admin verification (usually 5-30 minutes)</li>
-                      <li>6. You'll receive an email notification once approved</li>
-                    </ol>
+                    <p className="text-[13px] font-semibold text-white mb-1">How to Deposit</p>
+                    <p className="text-[12px] text-[#8E8E93] leading-relaxed">
+                      1. Send {selectedCrypto.symbol} to the address above<br/>
+                      2. Enter deposit amount in USD<br/>
+                      3. Click "I Have Made Payment"<br/>
+                      4. Wait for admin approval (~5-30 min)
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* Warning */}
-              <div className="mb-6 p-4 bg-[#FF9500]/10 border border-[#FF9500]/30 rounded-xl">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-[#FF9500] flex-shrink-0 mt-0.5" strokeWidth={2} />
-                  <div>
-                    <p className="text-[15px] font-semibold text-white mb-1">Important Notice</p>
-                    <p className="text-[13px] text-[#8E8E93]">
-                      Only send {selectedCrypto.symbol} to this address on the {selectedCrypto.network}. 
-                      Sending any other cryptocurrency or using a different network will result in permanent loss of funds.
-                    </p>
-                  </div>
+              {/* Warning - Compact */}
+              <div className="mb-4 p-3 bg-[#FF9500]/10 border border-[#FF9500]/30 rounded-xl">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-[#FF9500] flex-shrink-0 mt-0.5" strokeWidth={2} />
+                  <p className="text-[12px] text-[#8E8E93]">
+                    Only send {selectedCrypto.symbol} on {selectedCrypto.network}. Wrong network = lost funds.
+                  </p>
                 </div>
               </div>
 
@@ -295,7 +287,7 @@ export default function DepositPage() {
               <button
                 onClick={handleSubmitPayment}
                 disabled={submitting || !amount || parseFloat(amount) < 10}
-                className="w-full py-4 bg-[#34C759] hover:bg-[#2DB84F] text-white text-[17px] font-semibold rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-[#34C759] hover:bg-[#2DB84F] text-white text-[16px] font-semibold rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>
