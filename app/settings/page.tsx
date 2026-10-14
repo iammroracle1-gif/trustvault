@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ChevronRight, User, Shield, Bell, Palette, Globe, HelpCircle, FileText, LogOut, Mail } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const settingsGroups = [
   {
@@ -31,26 +32,33 @@ const settingsGroups = [
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { theme } = useTheme();
 
   const handleLogout = () => {
     sessionStorage.clear();
+    localStorage.clear();
     router.push("/welcome");
   };
 
+  // Theme colors
+  const bgPrimary = theme === 'dark' ? 'bg-[#0F1018]' : 'bg-[#F5F5F7]';
+  const bgSecondary = theme === 'dark' ? 'bg-[#191C2A]' : 'bg-white';
+  const bgHover = theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-50';
+  const textPrimary = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textSecondary = theme === 'dark' ? 'text-[#9CA3AF]' : 'text-gray-500';
+  const borderColor = theme === 'dark' ? 'border-[#303344]' : 'border-gray-200';
+
   return (
-    <div className="min-h-screen bg-[#0F1018]">
+    <div className={`min-h-screen ${bgPrimary}`}>
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#303344]">
+      <div className={`flex items-center justify-between px-6 py-4 border-b ${borderColor}`}>
         <button
-          onClick={() => {
-            console.log('Back button clicked - going to dashboard');
-            router.push('/dashboard');
-          }}
-          className="p-2 -ml-2 hover:bg-[#191C2A] rounded-lg transition-colors active:scale-95"
+          onClick={() => router.push('/dashboard')}
+          className={`p-2 -ml-2 ${bgHover} rounded-lg transition-colors active:scale-95`}
         >
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className={`w-6 h-6 ${textPrimary}`} strokeWidth={2.5} />
         </button>
-        <h1 className="text-lg font-semibold text-white">Settings</h1>
+        <h1 className={`text-lg font-semibold ${textPrimary}`}>Settings</h1>
         <div className="w-10" />
       </div>
 
@@ -58,17 +66,17 @@ export default function SettingsPage() {
       <div className="py-4">
         {settingsGroups.map((group, groupIndex) => (
           <div key={groupIndex} className="mb-6">
-            <h2 className="px-6 py-2 text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider">
+            <h2 className={`px-6 py-2 text-xs font-semibold ${textSecondary} uppercase tracking-wider`}>
               {group.title}
             </h2>
-            <div className="bg-[#191C2A] mx-4 rounded-2xl overflow-hidden">
+            <div className={`${bgSecondary} mx-4 rounded-2xl overflow-hidden`}>
               {group.items.map((item, itemIndex) => {
                 const Icon = item.icon;
                 return (
                   <button
                     key={itemIndex}
                     onClick={() => router.push(item.route)}
-                    className="w-full flex items-center justify-between px-4 py-4 hover:bg-[#202437] transition-colors border-b border-[#303344] last:border-b-0"
+                    className={`w-full flex items-center justify-between px-4 py-4 ${bgHover} transition-colors border-b ${borderColor} last:border-b-0`}
                   >
                     <div className="flex items-center gap-3">
                       <div 
@@ -77,13 +85,13 @@ export default function SettingsPage() {
                       >
                         <Icon className="w-5 h-5" style={{ color: item.color }} />
                       </div>
-                      <span className="text-base text-white font-medium">{item.label}</span>
+                      <span className={`text-base ${textPrimary} font-medium`}>{item.label}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {item.badge && (
-                        <span className="text-sm text-[#9CA3AF]">{item.badge}</span>
+                        <span className={`text-sm ${textSecondary}`}>{item.badge}</span>
                       )}
-                      <ChevronRight className="w-5 h-5 text-[#9CA3AF]" />
+                      <ChevronRight className={`w-5 h-5 ${textSecondary}`} />
                     </div>
                   </button>
                 );
@@ -105,8 +113,8 @@ export default function SettingsPage() {
 
         {/* Version */}
         <div className="px-6 py-6 text-center">
-          <p className="text-sm text-[#9CA3AF]">Trust Vault v0.1.0</p>
-          <p className="text-xs text-[#9CA3AF]/70 mt-1">
+          <p className={`text-sm ${textSecondary}`}>Trust Vault v0.1.0</p>
+          <p className={`text-xs ${textSecondary} opacity-70 mt-1`}>
             Made with ❤️ by Trust Vault Team
           </p>
         </div>

@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import InstallPrompt from "@/components/InstallPrompt";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import UserSessionCheck from "@/components/UserSessionCheck";
 
 export const metadata: Metadata = {
   title: "Trust Vault - Your Crypto. Your Control.",
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <ServiceWorkerRegistration />
+          <UserSessionCheck />
           <InstallPrompt />
           {children}
         </ThemeProvider>

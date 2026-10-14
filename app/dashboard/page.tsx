@@ -309,7 +309,7 @@ function DashboardContent() {
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => setShowWalletModal(true)}
-            className="flex items-center gap-3 hover:bg-[#202437] px-3 py-2 -ml-3 rounded-xl transition-colors"
+            className={`flex items-center gap-3 ${theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-100'} px-3 py-2 -ml-3 rounded-xl transition-colors`}
           >
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -320,16 +320,16 @@ function DashboardContent() {
               </div>
             </div>
             <div className="text-left">
-              <p className="text-xs text-[#9CA3AF]">Wallet</p>
-              <p className="text-white font-medium text-sm">{activeWallet.name}</p>
+              <p className={`text-xs ${textSecondary}`}>Wallet</p>
+              <p className={`${textPrimary} font-medium text-sm`}>{activeWallet.name}</p>
             </div>
           </button>
           <div className="flex gap-2">
             <button 
               onClick={() => router.push("/notifications")}
-              className="p-2 hover:bg-[#202437] rounded-lg transition-colors relative"
+              className={`p-2 ${theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-100'} rounded-lg transition-colors relative`}
             >
-              <Bell className="w-5 h-5 text-white" />
+              <Bell className={`w-5 h-5 ${textPrimary}`} />
               {/* Notification badge - only show if there are unread */}
               {unreadNotifications > 0 && (
                 <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-[#FF453A] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -339,22 +339,22 @@ function DashboardContent() {
             </button>
             <button 
               onClick={() => router.push("/settings")}
-              className="p-2 hover:bg-[#202437] rounded-lg transition-colors"
+              className={`p-2 ${theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-100'} rounded-lg transition-colors`}
             >
-              <Settings className="w-5 h-5 text-white" />
+              <Settings className={`w-5 h-5 ${textPrimary}`} />
             </button>
           </div>
         </div>
 
         {/* Total Balance */}
         <div className="text-center py-8">
-          <p className="text-xs text-[#9CA3AF] mb-3">Total Balance</p>
+          <p className={`text-xs ${textSecondary} mb-3`}>Total Balance</p>
           {loading ? (
             <div className="animate-pulse">
-              <div className="h-12 w-56 bg-[#202437] rounded mx-auto mb-2" />
+              <div className={`h-12 w-56 ${theme === 'dark' ? 'bg-[#202437]' : 'bg-gray-200'} rounded mx-auto mb-2`} />
             </div>
           ) : (
-            <h1 className="text-4xl font-bold text-white mb-2">
+            <h1 className={`text-4xl font-bold ${textPrimary} mb-2`}>
               ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h1>
           )}
@@ -364,14 +364,14 @@ function DashboardContent() {
         <div className="flex gap-3">
           <button 
             onClick={() => setShowSend(true)}
-            className="flex-1 py-3 bg-[#4938F5] text-white text-base font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-[#3D2DD4] transition-colors"
+            className={`flex-1 py-3 ${theme === 'dark' ? 'bg-[#4938F5] hover:bg-[#3D2DD4]' : 'bg-[#4938F5] hover:bg-[#3D2DD4]'} text-white text-base font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors`}
           >
             <Send className="w-4 h-4" />
             Send
           </button>
           <button 
             onClick={() => router.push('/deposit')}
-            className="flex-1 py-3 bg-[#202437] text-white text-base font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-[#303344] transition-colors"
+            className={`flex-1 py-3 ${theme === 'dark' ? 'bg-[#202437] hover:bg-[#303344]' : 'bg-gray-200 hover:bg-gray-300'} ${textPrimary} text-base font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors`}
           >
             <ArrowDownToLine className="w-4 h-4" />
             Receive
@@ -385,7 +385,7 @@ function DashboardContent() {
       {/* Markets Section - Live Prices */}
       <div className="px-6 py-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">Markets</h2>
+          <h2 className={`text-lg font-semibold ${textPrimary}`}>Markets</h2>
           <button 
             onClick={() => router.push("/markets")}
             className="text-sm text-[#4938F5] hover:text-[#3D2DD4]"
@@ -398,7 +398,7 @@ function DashboardContent() {
           {loading ? (
             <div className="animate-pulse space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 bg-[#191C2A] rounded-xl" />
+                <div key={i} className={`h-16 ${theme === 'dark' ? 'bg-[#191C2A]' : 'bg-white'} rounded-xl`} />
               ))}
             </div>
           ) : (
@@ -406,7 +406,7 @@ function DashboardContent() {
               {cryptoAssets.slice(0, 3).map((asset) => (
                 <div 
                   key={asset.id}
-                  className="p-4 bg-[#191C2A] rounded-xl hover:bg-[#202437] cursor-pointer transition-colors"
+                  className={`p-4 ${bgSecondary} ${theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-50'} rounded-xl cursor-pointer transition-colors`}
                   onClick={() => router.push(`/asset/${asset.symbol}`)}
                 >
                   <div className="flex items-center justify-between">
@@ -431,12 +431,12 @@ function DashboardContent() {
                         }}
                       />
                       <div>
-                        <p className="font-semibold text-white text-[15px]">{asset.symbol}</p>
-                        <p className="text-[13px] text-[#8E8E93]">{asset.name}</p>
+                        <p className={`font-semibold ${textPrimary} text-[15px]`}>{asset.symbol}</p>
+                        <p className={`text-[13px] ${textSecondary}`}>{asset.name}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-white text-[15px]">
+                      <p className={`font-semibold ${textPrimary} text-[15px]`}>
                         {formatPrice(asset.price)}
                       </p>
                       <p className={`text-[13px] font-medium ${
@@ -457,7 +457,7 @@ function DashboardContent() {
       {/* Transactions Section */}
       <div className="px-6 py-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">Recent Activity</h2>
+          <h2 className={`text-lg font-semibold ${textPrimary}`}>Recent Activity</h2>
           <button 
             onClick={() => router.push("/notifications")}
             className="text-sm text-[#4938F5] hover:text-[#3D2DD4]"
@@ -468,11 +468,11 @@ function DashboardContent() {
 
         {recentActivity.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Send className="w-7 h-7 text-[#8E8E93]" />
+            <div className={`w-16 h-16 ${theme === 'dark' ? 'bg-white/5' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-3`}>
+              <Send className={`w-7 h-7 ${textSecondary}`} />
             </div>
-            <p className="text-white text-[17px] font-semibold mb-1">No Recent Activity</p>
-            <p className="text-[#8E8E93] text-[15px]">
+            <p className={`${textPrimary} text-[17px] font-semibold mb-1`}>No Recent Activity</p>
+            <p className={`${textSecondary} text-[15px]`}>
               Your transactions will appear here
             </p>
           </div>
@@ -481,15 +481,15 @@ function DashboardContent() {
             {recentActivity.slice(0, 3).map((tx) => (
               <div
                 key={tx.id}
-                className="p-4 bg-[#191C2A] rounded-xl hover:bg-[#202437] cursor-pointer transition-colors"
+                className={`p-4 ${bgSecondary} ${theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-50'} rounded-xl cursor-pointer transition-colors`}
                 onClick={() => router.push("/notifications")}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-white text-[15px]">{tx.type}</p>
-                    <p className="text-[13px] text-[#8E8E93] mt-0.5">{tx.time}</p>
+                    <p className={`font-semibold ${textPrimary} text-[15px]`}>{tx.type}</p>
+                    <p className={`text-[13px] ${textSecondary} mt-0.5`}>{tx.time}</p>
                     {tx.address && (
-                      <p className="text-[13px] text-[#8E8E93] mt-0.5">
+                      <p className={`text-[13px] ${textSecondary} mt-0.5`}>
                         {tx.type === "Received" ? "From" : "To"}: {shortenAddress(tx.address)}
                       </p>
                     )}
@@ -499,12 +499,12 @@ function DashboardContent() {
                       className={`font-semibold text-[15px] ${
                         tx.amount.startsWith("+")
                           ? "text-[#34C759]"
-                          : "text-white"
+                          : textPrimary
                       }`}
                     >
                       {tx.amount} {tx.asset}
                     </p>
-                    <p className="text-[13px] text-[#8E8E93] mt-0.5">{tx.status}</p>
+                    <p className={`text-[13px] ${textSecondary} mt-0.5`}>{tx.status}</p>
                   </div>
                 </div>
               </div>
