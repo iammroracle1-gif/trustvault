@@ -111,9 +111,10 @@ export default function MarketsPage() {
         ) : (
           <div className="space-y-2">
             {cryptos.map((crypto) => (
-              <div
+              <button
                 key={crypto.id}
-                className="p-3 bg-[#191C2A] rounded-xl hover:bg-[#202437] cursor-pointer transition-colors"
+                onClick={() => router.push(`/asset/${crypto.symbol}`)}
+                className="w-full p-3 bg-[#191C2A] rounded-xl hover:bg-[#202437] cursor-pointer transition-all active:scale-[0.99]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -135,7 +136,7 @@ export default function MarketsPage() {
                         };
                       }}
                     />
-                    <div>
+                    <div className="text-left">
                       <p className="font-semibold text-white text-[15px]">
                         {crypto.symbol}
                       </p>
@@ -157,7 +158,7 @@ export default function MarketsPage() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
