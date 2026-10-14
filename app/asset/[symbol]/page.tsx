@@ -311,7 +311,7 @@ function AssetDetailContent() {
             <span className="text-[13px] font-medium text-gray-700">Send</span>
           </button>
           <button 
-            onClick={() => setShowReceiveModal(true)}
+            onClick={() => router.push('/deposit')}
             className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
           >
             <ArrowDownToLine className="w-4 h-4 text-gray-700" strokeWidth={2} />

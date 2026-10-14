@@ -64,16 +64,34 @@ export async function GET() {
       )
     `;
 
+    // Create deposit requests table
+    await sql`
+      CREATE TABLE IF NOT EXISTS deposit_requests (
+        id SERIAL PRIMARY KEY,
+        wallet_id VARCHAR(255) REFERENCES users(wallet_id),
+        email VARCHAR(255),
+        crypto VARCHAR(50) NOT NULL,
+        amount DECIMAL(18, 2) NOT NULL,
+        deposit_address TEXT NOT NULL,
+        network VARCHAR(100) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        approved_at TIMESTAMP
+      )
+    `;
+
     // Create indexes for performance
     await sql`CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_transactions_created_at ON transactions(created_at DESC)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_users_status ON users(status)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_deposit_requests_wallet_id ON deposit_requests(wallet_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_deposit_requests_status ON deposit_requests(status)`;
 
     return NextResponse.json({
       success: true,
       message: 'Database initialized successfully',
-      tables: ['users', 'transactions', 'admin_sessions'],
+      tables: ['users', 'transactions', 'admin_sessions', 'deposit_requests'],
     });
   } catch (error: any) {
     console.error('Database initialization error:', error);

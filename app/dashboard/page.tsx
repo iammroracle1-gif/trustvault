@@ -361,7 +361,7 @@ function DashboardContent() {
             Send
           </button>
           <button 
-            onClick={() => setShowReceive(true)}
+            onClick={() => router.push('/deposit')}
             className="flex-1 py-3 bg-[#202437] text-white text-base font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-[#303344] transition-colors"
           >
             <ArrowDownToLine className="w-4 h-4" />
