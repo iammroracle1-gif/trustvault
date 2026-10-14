@@ -169,10 +169,12 @@ function generateEmailContent(notification: EmailNotification) {
                   <div class="detail-box">
                     <div class="detail-row">
                       <span class="detail-label">Wallet Address</span>
-                      <span class="detail-value">${notification.data.walletAddress.slice(0, 20)}...</span>
+                    </div>
+                    <div style="margin-top: 8px; padding: 12px; background-color: #000000; border-radius: 8px; word-break: break-all;">
+                      <span style="color: #FFFFFF; font-size: 13px; font-family: 'SF Mono', 'Courier New', monospace;">${notification.data.walletAddress}</span>
                     </div>
                     ${notification.data.loginTime ? `
-                    <div class="detail-row">
+                    <div class="detail-row" style="margin-top: 12px;">
                       <span class="detail-label">Time</span>
                       <span class="detail-value">${new Date(notification.data.loginTime).toLocaleString()}</span>
                     </div>
