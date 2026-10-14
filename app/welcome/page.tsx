@@ -118,12 +118,18 @@ export default function WelcomePage() {
         </button>
 
         <div className="flex justify-center gap-6 pt-4">
-          <a href="/terms" className="text-xs text-[#9CA3AF] hover:text-white transition-colors">
+          <button
+            onClick={() => router.push("/terms")}
+            className="text-xs text-[#9CA3AF] hover:text-white transition-colors"
+          >
             Terms of Service
-          </a>
-          <a href="/privacy" className="text-xs text-[#9CA3AF] hover:text-white transition-colors">
+          </button>
+          <button
+            onClick={() => router.push("/privacy")}
+            className="text-xs text-[#9CA3AF] hover:text-white transition-colors"
+          >
             Privacy Policy
-          </a>
+          </button>
         </div>
       </div>
     </div>

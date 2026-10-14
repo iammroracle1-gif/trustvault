@@ -102,6 +102,18 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  /* Remove tap highlight for professional look */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Allow text selection in input fields */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
 }
 
 html,

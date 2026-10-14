@@ -17,7 +17,6 @@ const nextConfig: NextConfig = {
   },
   
   // Optimize for PWA performance
-  swcMinify: true,
   compress: true,
   
   // Enable experimental features for faster loading

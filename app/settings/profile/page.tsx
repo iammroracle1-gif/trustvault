@@ -77,7 +77,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <button
-                onClick={() => router.push("/settings/wallets")}
+                onClick={() => router.push("/dashboard")}
                 className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors active:scale-95"
               >
                 <Edit2 className="w-[18px] h-[18px] text-white" />
@@ -149,7 +149,7 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <button
-                  onClick={() => router.push(`/settings/wallets/${wallet.id}`)}
+                  onClick={() => router.push("/dashboard")}
                   className="p-2 hover:bg-white/5 rounded-lg transition-colors active:scale-95"
                 >
                   <Edit2 className="w-[18px] h-[18px] text-[#8E8E93]" strokeWidth={2} />
