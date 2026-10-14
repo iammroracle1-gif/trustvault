@@ -34,7 +34,7 @@ export default function CustomizeWalletModal({
   });
   const [showGlass, setShowGlass] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollTimeout = useRef<NodeJS.Timeout>();
+  const scrollTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const selectedColor = walletColors[selectedColorIndex];
 
