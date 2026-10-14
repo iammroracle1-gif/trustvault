@@ -59,7 +59,7 @@ export default function DepositPage() {
     {
       id: "usdt",
       symbol: "USDT",
-      name: "Tether USD (ERC-20)",
+      name: "Tether USD",
       address: "0x41ad746999661215464846780D62a9f7303E248c",
       icon: "https://cryptologos.cc/logos/tether-usdt-logo.png",
       network: "Ethereum (ERC-20)"
