@@ -22,13 +22,13 @@ export default function DepositPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Crypto options with wallet addresses (you'll provide these later)
+  // Crypto options with REAL wallet addresses
   const cryptoOptions: CryptoOption[] = [
     {
       id: "btc",
       symbol: "BTC",
       name: "Bitcoin",
-      address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", // Replace with your BTC address
+      address: "bc1qvcp0tmsyj37shhk3u893x3ncq5z9xh8kldc6t6",
       icon: "https://cryptologos.cc/logos/bitcoin-btc-logo.png",
       network: "Bitcoin Network"
     },
@@ -36,25 +36,33 @@ export default function DepositPage() {
       id: "eth",
       symbol: "ETH",
       name: "Ethereum",
-      address: "0x742d35Ec3B1B4E5C19e8Ba7a1A2c6fAd4Be4a2f8", // Replace with your ETH address
+      address: "0x41ad746999661215464846780D62a9f7303E248c",
       icon: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
       network: "Ethereum (ERC-20)"
     },
     {
-      id: "usdt",
-      symbol: "USDT",
-      name: "Tether USD",
-      address: "0x742d35Ec3B1B4E5C19e8Ba7a1A2c6fAd4Be4a2f8", // Replace with your USDT address
-      icon: "https://cryptologos.cc/logos/tether-usdt-logo.png",
-      network: "Ethereum (ERC-20)"
+      id: "bnb",
+      symbol: "BNB",
+      name: "Binance Coin",
+      address: "0x41ad746999661215464846780D62a9f7303E248c",
+      icon: "https://cryptologos.cc/logos/bnb-bnb-logo.png",
+      network: "BNB Smart Chain"
     },
     {
       id: "sol",
       symbol: "SOL",
       name: "Solana",
-      address: "DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK", // Replace with your SOL address
+      address: "9BmmKEbWsqr3Zf3vxZM7P877PYfV6rgxYr9LsRTgZCpu",
       icon: "https://cryptologos.cc/logos/solana-sol-logo.png",
       network: "Solana Network"
+    },
+    {
+      id: "usdt",
+      symbol: "USDT",
+      name: "Tether USD (ERC-20)",
+      address: "0x41ad746999661215464846780D62a9f7303E248c",
+      icon: "https://cryptologos.cc/logos/tether-usdt-logo.png",
+      network: "Ethereum (ERC-20)"
     }
   ];
 
