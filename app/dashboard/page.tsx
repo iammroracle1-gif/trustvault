@@ -127,7 +127,7 @@ function DashboardContent() {
     const savedWallets = localStorage.getItem("vaultora_wallets");
     if (savedWallets) {
       try {
-        const parsed = JSON.parse(savedWallets);
+        const parsed = JSON.parse(savedWallets as string);
         if (parsed && parsed.length > 0) {
           setWallets(parsed);
         }
@@ -159,7 +159,7 @@ function DashboardContent() {
       
       if (savedWallets) {
         try {
-          existingWallets = JSON.parse(savedWallets);
+          existingWallets = JSON.parse(savedWallets as string);
           // Set all other wallets to inactive
           existingWallets = existingWallets.map(w => ({ ...w, isActive: false }));
         } catch (error) {
