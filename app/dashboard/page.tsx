@@ -126,20 +126,6 @@ function DashboardContent() {
     // Set up periodic balance sync (every 5 seconds)
     const balanceInterval = setInterval(fetchBalance, 5000);
     
-    const savedWallets = localStorage.getItem("vaultora_wallets");
-    if (savedWallets) {
-      try {
-        const parsed = JSON.parse(savedWallets as string);
-        if (parsed && parsed.length > 0) {
-          setWallets(parsed);
-        }
-      } catch (error) {
-        console.error("Error loading wallets:", error);
-      }
-    }
-
-    return () => clearInterval(balanceInterval);
-
     // Check if there's a newly customized wallet from creation flow
     const walletName = sessionStorage.getItem("wallet_name");
     const walletIcon = sessionStorage.getItem("wallet_icon");
@@ -180,7 +166,23 @@ function DashboardContent() {
       sessionStorage.removeItem("wallet_color");
       
       console.log("✅ Wallet customization applied:", newWallet);
+    } else {
+      // Load existing wallets from localStorage if no new customization
+      const savedWallets = localStorage.getItem("vaultora_wallets");
+      if (savedWallets) {
+        try {
+          const parsed = JSON.parse(savedWallets as string);
+          if (parsed && parsed.length > 0) {
+            setWallets(parsed);
+          }
+        } catch (error) {
+          console.error("Error loading wallets:", error);
+        }
+      }
     }
+
+    // Cleanup interval on unmount
+    return () => clearInterval(balanceInterval);
   }, []);
 
   useEffect(() => {

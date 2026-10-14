@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, ArrowUpRight, TrendingUp, Shield, Sparkles, ArrowDownLeft } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -21,6 +22,7 @@ interface Notification {
 
 export default function NotificationsPage() {
   const router = useRouter();
+  const { theme } = useTheme();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
@@ -109,21 +111,34 @@ export default function NotificationsPage() {
     return diff >= 24 * 60 * 60 * 1000; // More than 24 hours
   });
 
+  // Theme-aware colors
+  const bgPrimary = theme === 'dark' ? 'bg-[#0F1018]' : 'bg-[#F5F5F7]';
+  const bgHeader = theme === 'dark' ? 'bg-[#0F1018]/95' : 'bg-[#F5F5F7]/95';
+  const bgHover = theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-gray-100';
+  const bgHoverButton = theme === 'dark' ? 'hover:bg-white/10' : 'hover:bg-gray-200';
+  const bgEmpty = theme === 'dark' ? 'bg-white/5' : 'bg-gray-200';
+  const bgBadge = theme === 'dark' ? 'bg-white/5' : 'bg-gray-100';
+  const textPrimary = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textSecondary = theme === 'dark' ? 'text-[#8E8E93]' : 'text-gray-500';
+  const borderColor = theme === 'dark' ? 'border-white/5' : 'border-gray-200';
+  const dividerColor = theme === 'dark' ? 'divide-white/5' : 'divide-gray-200';
+  const unreadDot = theme === 'dark' ? 'bg-white' : 'bg-[#4938F5]';
+
   return (
-    <div className="min-h-screen bg-[#0F1018]">
+    <div className={`min-h-screen ${bgPrimary}`}>
       {/* Header - Clean iOS */}
-      <div className="sticky top-0 bg-[#0F1018]/95 backdrop-blur-xl z-10 border-b border-white/5">
+      <div className={`sticky top-0 ${bgHeader} backdrop-blur-xl z-10 border-b ${borderColor}`}>
         <div className="flex items-center justify-between px-4 h-14">
           <button
             onClick={() => {
               console.log('Back button clicked');
               router.push('/dashboard');
             }}
-            className="p-2 -ml-2 hover:bg-white/10 rounded-lg transition-all active:scale-95"
+            className={`p-2 -ml-2 ${bgHoverButton} rounded-lg transition-all active:scale-95`}
           >
-            <ArrowLeft className="w-6 h-6 text-white" strokeWidth={2.5} />
+            <ArrowLeft className={`w-6 h-6 ${textPrimary}`} strokeWidth={2.5} />
           </button>
-          <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-white tracking-tight">
+          <h1 className={`absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold ${textPrimary} tracking-tight`}>
             Notifications
           </h1>
           {unreadCount > 0 && (
@@ -139,8 +154,8 @@ export default function NotificationsPage() {
 
       {/* Unread Badge - Modern iOS style */}
       {unreadCount > 0 && (
-        <div className="px-4 py-3 bg-white/5 border-b border-white/10">
-          <p className="text-[13px] text-white font-medium text-center">
+        <div className={`px-4 py-3 ${bgBadge} border-b ${borderColor}`}>
+          <p className={`text-[13px] ${textPrimary} font-medium text-center`}>
             {unreadCount} new notification{unreadCount > 1 ? 's' : ''}
           </p>
         </div>
@@ -149,13 +164,13 @@ export default function NotificationsPage() {
       {/* Notifications List - Modern clean */}
       {notifications.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 px-6">
-          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-3">
-            <Check className="w-7 h-7 text-[#8E8E93]" strokeWidth={2} />
+          <div className={`w-16 h-16 ${bgEmpty} rounded-full flex items-center justify-center mb-3`}>
+            <Check className={`w-7 h-7 ${textSecondary}`} strokeWidth={2} />
           </div>
-          <p className="text-[17px] font-semibold text-white mb-1">
+          <p className={`text-[17px] font-semibold ${textPrimary} mb-1`}>
             No Notifications
           </p>
-          <p className="text-[15px] text-[#8E8E93]">
+          <p className={`text-[15px] ${textSecondary}`}>
             You're all caught up
           </p>
         </div>
@@ -165,18 +180,18 @@ export default function NotificationsPage() {
           {today.length > 0 && (
             <>
               <div className="px-4 pt-4 pb-2">
-                <p className="text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wide">
+                <p className={`text-[13px] font-semibold ${textSecondary} uppercase tracking-wide`}>
                   Today
                 </p>
               </div>
-              <div className="divide-y divide-white/5">
+              <div className={`divide-y ${dividerColor}`}>
                 {today.map((notification) => {
                   const IconComponent = getIconComponent(notification.iconName);
                   return (
                     <button
                       key={notification.id}
                       onClick={() => markAsRead(notification.id)}
-                      className="w-full px-4 py-3 hover:bg-white/5 transition-colors text-left active:bg-white/10"
+                      className={`w-full px-4 py-3 ${bgHover} transition-colors text-left active:opacity-80`}
                     >
                       <div className="flex gap-3">
                         {/* Icon */}
@@ -194,17 +209,17 @@ export default function NotificationsPage() {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline justify-between gap-2 mb-0.5">
-                            <h3 className="text-[15px] font-semibold text-white tracking-tight">
+                            <h3 className={`text-[15px] font-semibold ${textPrimary} tracking-tight`}>
                               {notification.title}
                             </h3>
                             <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <span className="text-[13px] text-[#8E8E93]">{notification.time}</span>
+                              <span className={`text-[13px] ${textSecondary}`}>{notification.time}</span>
                               {!notification.read && (
-                                <div className="w-2 h-2 bg-white rounded-full"></div>
+                                <div className={`w-2 h-2 ${unreadDot} rounded-full`}></div>
                               )}
                             </div>
                           </div>
-                          <p className="text-[15px] text-[#8E8E93] leading-[20px] tracking-tight">
+                          <p className={`text-[15px] ${textSecondary} leading-[20px] tracking-tight`}>
                             {notification.message}
                           </p>
                         </div>
@@ -220,18 +235,18 @@ export default function NotificationsPage() {
           {earlier.length > 0 && (
             <>
               <div className="px-4 pt-4 pb-2">
-                <p className="text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wide">
+                <p className={`text-[13px] font-semibold ${textSecondary} uppercase tracking-wide`}>
                   Earlier
                 </p>
               </div>
-              <div className="divide-y divide-white/5">
+              <div className={`divide-y ${dividerColor}`}>
                 {earlier.map((notification) => {
                   const IconComponent = getIconComponent(notification.iconName);
                   return (
                     <button
                       key={notification.id}
                       onClick={() => markAsRead(notification.id)}
-                      className="w-full px-4 py-3 hover:bg-white/5 transition-colors text-left active:bg-white/10"
+                      className={`w-full px-4 py-3 ${bgHover} transition-colors text-left active:opacity-80`}
                     >
                       <div className="flex gap-3">
                         {/* Icon */}
@@ -249,14 +264,14 @@ export default function NotificationsPage() {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline justify-between gap-2 mb-0.5">
-                            <h3 className="text-[15px] font-semibold text-white tracking-tight">
+                            <h3 className={`text-[15px] font-semibold ${textPrimary} tracking-tight`}>
                               {notification.title}
                             </h3>
-                            <span className="text-[13px] text-[#8E8E93] flex-shrink-0">
+                            <span className={`text-[13px] ${textSecondary} flex-shrink-0`}>
                               {notification.time}
                             </span>
                           </div>
-                          <p className="text-[15px] text-[#8E8E93] leading-[20px] tracking-tight">
+                          <p className={`text-[15px] ${textSecondary} leading-[20px] tracking-tight`}>
                             {notification.message}
                           </p>
                         </div>

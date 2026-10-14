@@ -6,9 +6,11 @@ import { Search, RefreshCw } from "lucide-react";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import { fetchMarketTickers, formatPrice, formatPercentChange, formatLargeNumber, type MarketTicker } from "@/lib/market-api";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function MarketsPage() {
   const router = useRouter();
+  const { theme } = useTheme();
   const [cryptos, setCryptos] = useState<MarketTicker[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,27 +48,37 @@ export default function MarketsPage() {
     loadMarkets();
   };
 
+  // Theme-aware colors
+  const bgPrimary = theme === 'dark' ? 'bg-[#0F1018]' : 'bg-[#F5F5F7]';
+  const bgSecondary = theme === 'dark' ? 'bg-[#191C2A]' : 'bg-white';
+  const bgSecondaryHover = theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-50';
+  const textPrimary = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textSecondary = theme === 'dark' ? 'text-[#8E8E93]' : 'text-gray-500';
+  const inputBg = theme === 'dark' ? 'bg-[#191C2A]/60' : 'bg-white';
+  const inputBorder = theme === 'dark' ? 'border-white/5' : 'border-gray-200';
+  const skeletonBg = theme === 'dark' ? 'bg-[#191C2A]' : 'bg-gray-200';
+
   return (
-    <div className="min-h-screen bg-[#0F1018] pb-32">
+    <div className={`min-h-screen ${bgPrimary} pb-32`}>
       {/* Top Navigation with Glass Morphism */}
       <TopNav title="Markets" />
 
       {/* Search Bar & Status */}
       <div className="px-4 pt-4 pb-2">
         <div className="relative mb-2">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${textSecondary}`} />
           <input
             type="text"
             placeholder="Search cryptocurrency"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-[#191C2A]/60 backdrop-blur-xl border border-white/5 rounded-2xl text-white text-sm placeholder-[#9CA3AF] focus:border-[#4938F5] focus:bg-[#191C2A] focus:outline-none transition-all"
+            className={`w-full pl-10 pr-4 py-3 ${inputBg} backdrop-blur-xl border ${inputBorder} rounded-2xl ${textPrimary} text-sm placeholder-gray-400 focus:border-[#4938F5] focus:outline-none transition-all`}
           />
         </div>
         
         {/* Last Update & Refresh */}
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-[#8E8E93]">
+          <span className={textSecondary}>
             {lastUpdate ? `Updated ${new Date(lastUpdate).toLocaleTimeString()}` : 'Powered by CoinPaprika'}
           </span>
           <button
@@ -98,13 +110,13 @@ export default function MarketsPage() {
         {loading ? (
           <div className="space-y-3">
             {[...Array(10)].map((_, i) => (
-              <div key={i} className="animate-pulse h-16 bg-[#191C2A] rounded-xl" />
+              <div key={i} className={`animate-pulse h-16 ${skeletonBg} rounded-xl`} />
             ))}
           </div>
         ) : cryptos.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-white text-[17px] font-semibold mb-1">No results found</p>
-            <p className="text-[#8E8E93] text-[15px]">
+            <p className={`${textPrimary} text-[17px] font-semibold mb-1`}>No results found</p>
+            <p className={`${textSecondary} text-[15px]`}>
               {searchQuery ? 'Try a different search term' : 'Unable to load market data'}
             </p>
           </div>
@@ -114,7 +126,7 @@ export default function MarketsPage() {
               <button
                 key={crypto.id}
                 onClick={() => router.push(`/asset/${crypto.symbol}`)}
-                className="w-full p-3 bg-[#191C2A] rounded-xl hover:bg-[#202437] cursor-pointer transition-all active:scale-[0.99]"
+                className={`w-full p-3 ${bgSecondary} rounded-xl ${bgSecondaryHover} cursor-pointer transition-all active:scale-[0.99]`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -137,14 +149,14 @@ export default function MarketsPage() {
                       }}
                     />
                     <div className="text-left">
-                      <p className="font-semibold text-white text-[15px]">
+                      <p className={`font-semibold ${textPrimary} text-[15px]`}>
                         {crypto.symbol}
                       </p>
-                      <p className="text-[13px] text-[#8E8E93]">{crypto.name}</p>
+                      <p className={`text-[13px] ${textSecondary}`}>{crypto.name}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-white text-[15px]">
+                    <p className={`font-semibold ${textPrimary} text-[15px]`}>
                       {formatPrice(crypto.price)}
                     </p>
                     <p

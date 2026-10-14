@@ -80,13 +80,13 @@ export default function InstallPrompt() {
 
         {/* App Icon */}
         <div className="flex flex-col items-center mb-6">
-          <div className="w-20 h-20 bg-[#4938F5] rounded-[20px] flex items-center justify-center mb-4 shadow-xl">
+          <div className="w-20 h-20 rounded-[20px] flex items-center justify-center mb-4 shadow-xl overflow-hidden">
             <Image
               src="/icon.png"
               alt="Trust Vault"
               width={80}
               height={80}
-              className="rounded-[20px]"
+              className="rounded-[20px] object-cover"
             />
           </div>
           <h2 className="text-[20px] font-bold text-white mb-2">Install Trust Vault</h2>

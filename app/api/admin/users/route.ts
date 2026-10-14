@@ -46,9 +46,28 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(user);
     }
 
-    // Get all users - try database first
+    // Get all users - ONLY from database (no in-memory fallback)
     const dbUsers = await getDbUsers();
+    
+    // Clear in-memory cache to prevent showing deleted users
+    adminUsers.clear();
+    
+    // Repopulate cache with current database users
     if (dbUsers && dbUsers.length > 0) {
+      dbUsers.forEach(user => {
+        adminUsers.set(user.wallet_id, {
+          walletId: user.wallet_id,
+          email: user.email,
+          balance: parseFloat(user.balance.toString()),
+          withdrawalRestricted: user.withdrawal_restricted,
+          restrictionReason: user.restriction_reason,
+          createdAt: user.created_at,
+          lastActivity: user.last_activity,
+          totalTransactions: user.total_transactions,
+          status: user.status,
+        });
+      });
+      
       return NextResponse.json(dbUsers.map(user => ({
         walletId: user.wallet_id,
         email: user.email,
@@ -64,9 +83,8 @@ export async function GET(request: NextRequest) {
       })));
     }
 
-    // Fallback to in-memory users
-    const users = getAllUsers();
-    return NextResponse.json(users);
+    // Return empty array if no users in database
+    return NextResponse.json([]);
   } catch (error) {
     console.error('Error fetching users:', error);
     // Fallback to in-memory on error
