@@ -68,6 +68,30 @@ export async function POST(request: NextRequest) {
       adminId: 'admin',
     });
 
+    // Create in-app notification entry (for notification system)
+    try {
+      const { sql } = await import('@vercel/postgres');
+      await sql`
+        INSERT INTO deposit_requests (
+          wallet_id,
+          amount,
+          crypto,
+          status,
+          created_at
+        ) VALUES (
+          ${walletId},
+          ${usdValue},
+          ${currency},
+          'approved',
+          NOW()
+        )
+      `;
+      console.log(`✅ Created in-app notification for ${currency} deposit`);
+    } catch (notifError) {
+      console.error('Failed to create notification entry:', notifError);
+      // Don't fail the request if notification fails
+    }
+
     // Send email notification
     try {
       await sendDepositApprovedEmail({

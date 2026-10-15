@@ -516,21 +516,7 @@ function DashboardContent() {
 
         {/* Total Balance */}
         <div className="text-center py-8">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <p className={`text-xs ${textSecondary}`}>Total Balance</p>
-            <select
-              value={displayCurrency}
-              onChange={(e) => setDisplayCurrency(e.target.value)}
-              className={`text-xs ${textSecondary} ${bgSecondary} border ${borderColor} rounded px-2 py-1 cursor-pointer`}
-            >
-              <option value="BTC">BTC</option>
-              <option value="ETH">ETH</option>
-              <option value="BNB">BNB</option>
-              <option value="SOL">SOL</option>
-              <option value="USDT">USDT</option>
-              <option value="USD">USD</option>
-            </select>
-          </div>
+          <p className={`text-xs ${textSecondary} mb-3`}>Total Balance</p>
           {loading ? (
             <div className="animate-pulse">
               <div className={`h-12 w-56 ${theme === 'dark' ? 'bg-[#202437]' : 'bg-gray-200'} rounded mx-auto mb-2`} />
@@ -538,27 +524,11 @@ function DashboardContent() {
           ) : (
             <>
               <h1 className={`text-4xl font-bold ${textPrimary} mb-2`}>
-                {displayCurrency === 'USD' ? (
-                  `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                ) : displayCurrency === 'BTC' ? (
-                  `${totalBtc.toFixed(8).replace(/\.?0+$/, '')} BTC`
-                ) : displayCurrency === 'ETH' && cryptoPrices.ETH ? (
-                  `${(totalBalance / cryptoPrices.ETH.priceUsd).toFixed(8).replace(/\.?0+$/, '')} ETH`
-                ) : displayCurrency === 'BNB' && cryptoPrices.BNB ? (
-                  `${(totalBalance / cryptoPrices.BNB.priceUsd).toFixed(8).replace(/\.?0+$/, '')} BNB`
-                ) : displayCurrency === 'SOL' && cryptoPrices.SOL ? (
-                  `${(totalBalance / cryptoPrices.SOL.priceUsd).toFixed(8).replace(/\.?0+$/, '')} SOL`
-                ) : displayCurrency === 'USDT' ? (
-                  `${totalBalance.toFixed(2)} USDT`
-                ) : (
-                  `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                )}
+                {totalBtc.toFixed(8).replace(/\.?0+$/, '')} BTC
               </h1>
-              {displayCurrency !== 'USD' && (
-                <p className={`text-sm ${textSecondary}`}>
-                  ≈ ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
-                </p>
-              )}
+              <p className={`text-sm ${textSecondary}`}>
+                ≈ ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+              </p>
             </>
           )}
         </div>
@@ -587,21 +557,13 @@ function DashboardContent() {
 
       {/* Crypto Holdings Section */}
       {cryptoBalances.length > 0 && (
-        <div className="px-6 py-6 border-b ${borderColor}">
+        <div className="px-6 py-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className={`text-lg font-semibold ${textPrimary}`}>Accounts</h2>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             {cryptoBalances.map((balance) => {
-              const cryptoIcons: Record<string, string> = {
-                BTC: '₿',
-                ETH: 'Ξ',
-                BNB: 'BNB',
-                SOL: 'SOL',
-                USDT: '$'
-              };
-              
               const cryptoNames: Record<string, string> = {
                 BTC: 'Bitcoin',
                 ETH: 'Ethereum',
@@ -617,11 +579,22 @@ function DashboardContent() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#4938F5]/20 flex items-center justify-center">
-                        <span className="text-[#4938F5] font-bold text-[15px]">
-                          {cryptoIcons[balance.currency] || balance.currency[0]}
-                        </span>
-                      </div>
+                      <img
+                        src={`https://cryptologos.cc/logos/${(cryptoNames[balance.currency] || balance.currency).toLowerCase().replace(/\s+/g, '-')}-${balance.currency.toLowerCase()}-logo.png`}
+                        alt={balance.currency}
+                        className="w-10 h-10 rounded-full"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = `https://assets.coincap.io/assets/icons/${balance.currency.toLowerCase()}@2x.png`;
+                          target.onerror = () => {
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `<div class="w-10 h-10 rounded-full bg-[#4938F5]/20 flex items-center justify-center"><span class="text-[#4938F5] font-bold text-[15px]">${balance.currency[0]}</span></div>`;
+                            }
+                          };
+                        }}
+                      />
                       <div>
                         <p className={`font-semibold ${textPrimary} text-[15px]`}>
                           {cryptoNames[balance.currency] || balance.currency}
@@ -642,7 +615,7 @@ function DashboardContent() {
                         ≈ ${balance.usdValue.toLocaleString('en-US', { 
                           minimumFractionDigits: 2, 
                           maximumFractionDigits: 2 
-                        })} USD
+                        })}
                       </p>
                     </div>
                   </div>
@@ -652,6 +625,9 @@ function DashboardContent() {
           </div>
         </div>
       )}
+
+      {/* Professional Divider */}
+      <div className="h-2 bg-gradient-to-b from-transparent via-[#1a1a1a] to-transparent opacity-30" />
 
       {/* Markets Section - Live Prices */}
       <div className="px-6 py-6">

@@ -397,21 +397,21 @@ export async function sendDepositApprovedEmail(data: {
                 </div>
                 <div class="content">
                   <h1 class="title">Deposit Confirmed</h1>
-                  <div class="amount">+$${data.amount.toLocaleString()}</div>
-                  <p class="message">Your deposit from ${data.exchange} has been credited to your wallet.</p>
+                  <div class="amount">+${data.amount.toLocaleString()}</div>
+                  <p class="message">Your ${data.crypto} deposit has been credited to your wallet.</p>
                   
                   <div class="detail-box">
                     <div class="detail-row">
-                      <span class="detail-label">From</span>
-                      <span class="detail-value">${data.exchange}</span>
-                    </div>
-                    <div class="detail-row">
-                      <span class="detail-label">Cryptocurrency</span>
+                      <span class="detail-label">Currency</span>
                       <span class="detail-value">${data.crypto}</span>
                     </div>
                     <div class="detail-row">
-                      <span class="detail-label">Amount</span>
+                      <span class="detail-label">Amount (USD)</span>
                       <span class="detail-value">$${data.amount.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">From</span>
+                      <span class="detail-value">${data.exchange}</span>
                     </div>
                     <div class="detail-row">
                       <span class="detail-label">Transaction ID</span>
