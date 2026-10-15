@@ -63,71 +63,71 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Active Wallet Card */}
+      {/* Active Wallet Card - Modern Glass Morphism */}
       {activeWallet && (
-        <div className="p-6">
-          <div className="bg-gradient-to-br from-[#4938F5] to-[#7D7AFF] rounded-[28px] p-6 shadow-2xl">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-14 h-14 rounded-[18px] flex items-center justify-center shadow-lg"
-                  style={{ backgroundColor: activeWallet.color }}
-                >
-                  <div className="w-7 h-7 text-white">
-                    {WalletIcons[activeWallet.icon as keyof typeof WalletIcons] || WalletIcons.wallet}
-                  </div>
+        <div className="p-4">
+          <div className="bg-[#1C1C1E]/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-5 shadow-xl">
+            {/* Wallet Header */}
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/5">
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: activeWallet.color }}
+              >
+                <div className="w-5 h-5 text-white">
+                  {WalletIcons[activeWallet.icon as keyof typeof WalletIcons] || WalletIcons.wallet}
                 </div>
-                <div>
-                  <h2 className="text-[22px] font-bold text-white leading-tight">
-                    {activeWallet.name}
-                  </h2>
-                  <p className="text-white/60 text-[13px] mt-0.5">Active Wallet</p>
-                </div>
+              </div>
+              <div className="flex-1">
+                <h2 className="text-[17px] font-semibold text-white leading-tight">
+                  {activeWallet.name}
+                </h2>
+                <p className="text-[#8E8E93] text-[13px] mt-0.5">Active Wallet</p>
               </div>
               <button
                 onClick={() => router.push("/dashboard")}
-                className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors active:scale-95"
+                className="p-2 hover:bg-white/5 rounded-lg transition-colors active:scale-95"
               >
-                <Edit2 className="w-[18px] h-[18px] text-white" />
+                <Edit2 className="w-[18px] h-[18px] text-[#8E8E93]" />
               </button>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-sm rounded-[18px] p-4 mb-3">
-              <p className="text-white/60 text-[11px] uppercase tracking-wider mb-2 font-semibold">Email Address</p>
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-white text-[15px] tracking-tight">
-                  {email || "No email registered"}
-                </p>
-                {email && (
+            {/* Email Address */}
+            {email && (
+              <div className="mb-3">
+                <p className="text-[#8E8E93] text-[11px] uppercase tracking-wider mb-1.5 font-medium">Email</p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-white text-[15px] flex-1 truncate">
+                    {email}
+                  </p>
                   <button
                     onClick={() => copyAddress(email, "email")}
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors active:scale-95"
+                    className="p-1.5 hover:bg-white/5 rounded-lg transition-colors active:scale-95 flex-shrink-0"
                   >
                     {copiedId === "email" ? (
-                      <Check className="w-[18px] h-[18px] text-[#34C759]" strokeWidth={2.5} />
+                      <Check className="w-4 h-4 text-[#34C759]" strokeWidth={2.5} />
                     ) : (
-                      <Copy className="w-[18px] h-[18px] text-white" strokeWidth={2} />
+                      <Copy className="w-4 h-4 text-[#8E8E93]" strokeWidth={2} />
                     )}
                   </button>
-                )}
+                </div>
               </div>
-            </div>
-            
-            <div className="bg-white/10 backdrop-blur-sm rounded-[18px] p-4">
-              <p className="text-white/60 text-[11px] uppercase tracking-wider mb-2 font-semibold">Wallet Address</p>
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-white font-mono text-[13px] tracking-tight">
-                  {sessionStorage.getItem("wallet_address")?.slice(0, 10)}...
-                  {sessionStorage.getItem("wallet_address")?.slice(-8)}
+            )}
+
+            {/* Wallet Address */}
+            <div>
+              <p className="text-[#8E8E93] text-[11px] uppercase tracking-wider mb-1.5 font-medium">Wallet Address</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-white font-mono text-[13px] flex-1 truncate">
+                  {sessionStorage.getItem("wallet_address")}
                 </p>
                 <button
                   onClick={() => copyAddress(sessionStorage.getItem("wallet_address") || "", activeWallet.id)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors active:scale-95"
+                  className="p-1.5 hover:bg-white/5 rounded-lg transition-colors active:scale-95 flex-shrink-0"
                 >
                   {copiedId === activeWallet.id ? (
-                    <Check className="w-[18px] h-[18px] text-[#34C759]" strokeWidth={2.5} />
+                    <Check className="w-4 h-4 text-[#34C759]" strokeWidth={2.5} />
                   ) : (
-                    <Copy className="w-[18px] h-[18px] text-white" strokeWidth={2} />
+                    <Copy className="w-4 h-4 text-[#8E8E93]" strokeWidth={2} />
                   )}
                 </button>
               </div>
@@ -137,8 +137,8 @@ export default function ProfilePage() {
       )}
 
       {/* All Wallets Section */}
-      <div className="px-6 pb-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="px-4 pb-4">
+        <div className="flex items-center justify-between mb-3">
           <h3 className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wider">
             All Wallets
           </h3>
@@ -150,22 +150,22 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {wallets.map((wallet) => (
             <div
               key={wallet.id}
-              className={`p-4 rounded-[20px] transition-all ${
+              className={`p-3 rounded-xl transition-all bg-[#1C1C1E]/80 backdrop-blur-2xl border ${
                 wallet.isActive
-                  ? "bg-[#4938F5]/10 border-2 border-[#4938F5]"
-                  : "bg-[#1C1C1E] border-2 border-transparent hover:border-[#303344]"
+                  ? "border-[#4938F5]"
+                  : "border-white/5 hover:border-white/10"
               }`}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-12 h-12 rounded-[16px] flex items-center justify-center flex-shrink-0"
+                  className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: wallet.color }}
                 >
-                  <div className="w-6 h-6 text-white">
+                  <div className="w-5 h-5 text-white">
                     {WalletIcons[wallet.icon as keyof typeof WalletIcons] || WalletIcons.wallet}
                   </div>
                 </div>
@@ -179,7 +179,7 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={() => router.push("/dashboard")}
-                  className="p-2 hover:bg-white/5 rounded-lg transition-colors active:scale-95"
+                  className="p-1.5 hover:bg-white/5 rounded-lg transition-colors active:scale-95"
                 >
                   <Edit2 className="w-[18px] h-[18px] text-[#8E8E93]" strokeWidth={2} />
                 </button>
@@ -190,31 +190,31 @@ export default function ProfilePage() {
       </div>
 
       {/* Quick Actions Section */}
-      <div className="px-6 pb-6">
-        <h3 className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wider mb-4">
+      <div className="px-4 pb-6">
+        <h3 className="text-[13px] font-bold text-[#8E8E93] uppercase tracking-wider mb-3">
           Quick Actions
         </h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => router.push("/settings/security/backup")}
-            className="p-4 bg-[#1C1C1E] hover:bg-[#252525] rounded-[20px] transition-all active:scale-[0.98]"
+            className="p-3 bg-[#1C1C1E]/80 backdrop-blur-2xl border border-white/5 hover:border-white/10 rounded-xl transition-all active:scale-[0.98]"
           >
-            <div className="w-11 h-11 bg-[#FF9500]/20 rounded-[14px] flex items-center justify-center mb-3">
-              <Key className="w-5 h-5 text-[#FF9500]" strokeWidth={2} />
+            <div className="w-9 h-9 bg-[#FF9500]/20 rounded-lg flex items-center justify-center mb-2">
+              <Key className="w-4 h-4 text-[#FF9500]" strokeWidth={2} />
             </div>
             <p className="text-white font-semibold text-[15px] leading-tight">Backup</p>
-            <p className="text-[#8E8E93] text-[13px] mt-1 leading-tight">Save seed phrase</p>
+            <p className="text-[#8E8E93] text-[12px] mt-0.5 leading-tight">Save seed phrase</p>
           </button>
 
           <button
             onClick={() => router.push("/settings/security")}
-            className="p-4 bg-[#1C1C1E] hover:bg-[#252525] rounded-[20px] transition-all active:scale-[0.98]"
+            className="p-3 bg-[#1C1C1E]/80 backdrop-blur-2xl border border-white/5 hover:border-white/10 rounded-xl transition-all active:scale-[0.98]"
           >
-            <div className="w-11 h-11 bg-[#34C759]/20 rounded-[14px] flex items-center justify-center mb-3">
-              <Shield className="w-5 h-5 text-[#34C759]" strokeWidth={2} />
+            <div className="w-9 h-9 bg-[#34C759]/20 rounded-lg flex items-center justify-center mb-2">
+              <Shield className="w-4 h-4 text-[#34C759]" strokeWidth={2} />
             </div>
             <p className="text-white font-semibold text-[15px] leading-tight">Security</p>
-            <p className="text-[#8E8E93] text-[13px] mt-1 leading-tight">Manage security</p>
+            <p className="text-[#8E8E93] text-[12px] mt-0.5 leading-tight">Manage security</p>
           </button>
         </div>
       </div>

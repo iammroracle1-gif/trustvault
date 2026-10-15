@@ -102,16 +102,26 @@ function DashboardContent() {
   const fetchPendingNotifications = async () => {
     try {
       const walletId = localStorage.getItem('wallet_id');
-      if (!walletId) return;
+      if (!walletId) {
+        console.log('⚠️ No wallet ID for notifications');
+        return;
+      }
 
       // Get last check timestamp
       const lastCheck = localStorage.getItem('last_notification_check') || '0';
       
+      console.log('🔔 Checking for pending notifications...', {
+        walletId,
+        lastCheck: new Date(parseInt(lastCheck)).toISOString()
+      });
+      
       const response = await fetch(`/api/user/pending-notifications?walletId=${walletId}&lastCheck=${lastCheck}`);
       const data = await response.json();
 
+      console.log('🔔 Notification check response:', data);
+
       if (data.success && data.count > 0) {
-        console.log('🔔 New notifications:', data.count);
+        console.log('🎉 New notifications found:', data.count);
 
         // Merge new notifications with existing ones
         const existingNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
@@ -131,8 +141,11 @@ function DashboardContent() {
         console.log('✅ Notifications synced:', {
           newNotifications: data.count,
           totalNotifications: mergedNotifications.length,
+          totalActivities: mergedActivities.length,
           unread
         });
+      } else {
+        console.log('ℹ️ No new notifications');
       }
 
       // Update last check timestamp

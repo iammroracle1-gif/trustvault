@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
     for (const deposit of deposits.rows) {
       const randomExchange = exchanges[Math.floor(Math.random() * exchanges.length)];
       const timestamp = new Date(deposit.approved_at).getTime();
+      const approvedDate = new Date(deposit.approved_at);
 
       // Create notification
       notifications.push({
@@ -51,7 +52,8 @@ export async function GET(request: NextRequest) {
         read: false,
         iconName: 'ArrowDownLeft',
         color: '#34C759',
-        timestamp: timestamp
+        timestamp: timestamp,
+        realDate: approvedDate.toISOString()
       });
 
       // Create activity
@@ -62,7 +64,9 @@ export async function GET(request: NextRequest) {
         amount: `+$${parseFloat(deposit.amount).toLocaleString()}`,
         time: formatTimeAgo(deposit.approved_at),
         status: 'Completed',
-        address: randomExchange
+        address: randomExchange,
+        timestamp: timestamp,
+        realDate: approvedDate.toISOString()
       });
     }
 
