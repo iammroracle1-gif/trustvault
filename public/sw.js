@@ -1,7 +1,7 @@
 // Service Worker for Trust Vault PWA - Optimized for Speed
-const CACHE_NAME = 'trust-vault-v2';
-const STATIC_CACHE = 'trust-vault-static-v2';
-const DYNAMIC_CACHE = 'trust-vault-dynamic-v2';
+const CACHE_NAME = 'trust-vault-v3';
+const STATIC_CACHE = 'trust-vault-static-v3';
+const DYNAMIC_CACHE = 'trust-vault-dynamic-v3';
 
 // Critical assets to cache immediately for instant load
 const STATIC_ASSETS = [
@@ -43,6 +43,14 @@ self.addEventListener('activate', (event) => {
       );
     }).then(() => self.clients.claim())
   );
+});
+
+// Listen for SKIP_WAITING message
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW] Skipping waiting and activating new version');
+    self.skipWaiting();
+  }
 });
 
 // Fetch event - Cache-first for static, Network-first for API

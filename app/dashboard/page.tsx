@@ -77,18 +77,31 @@ function DashboardContent() {
       console.log('🔍 Checking account status for wallet:', walletId);
       
       const response = await fetch(`/api/user/check-status?walletId=${walletId}`);
+      
+      // If server error, don't block user
+      if (!response.ok && response.status >= 500) {
+        console.warn('⚠️ Status check failed with server error - allowing access');
+        return;
+      }
+      
       const data = await response.json();
 
       console.log('📊 Status check response:', data);
 
-      if (data.accountDeleted || data.status === 'deleted' || data.status === 'suspended') {
+      // CRITICAL FIX: Only block if EXPLICITLY deleted/suspended
+      // Must check accountDeleted === true (not just truthy)
+      if (
+        data.accountDeleted === true && 
+        (data.status === 'deleted' || data.status === 'suspended')
+      ) {
         console.error('🚫 ACCOUNT DELETED/SUSPENDED - SHOWING MODAL');
         setShowAccountDeleted(true);
       } else {
-        console.log('✅ Account is active');
+        console.log('✅ Account check passed - status:', data.status || 'unregistered');
       }
     } catch (error) {
-      console.error('❌ Failed to check account status:', error);
+      console.error('❌ Failed to check account status (network error) - allowing access:', error);
+      // On network error, don't block user
     }
   };
 

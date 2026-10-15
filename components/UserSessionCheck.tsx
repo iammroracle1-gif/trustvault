@@ -20,23 +20,41 @@ export default function UserSessionCheck() {
 
       try {
         const response = await fetch(`/api/user/check-status?walletId=${walletId}`);
-        const data = await response.json();
+        
+        // If request failed (network error, 500, etc.), DON'T block user
+        if (!response.ok && response.status >= 500) {
+          console.warn('⚠️ Status check failed with server error - allowing access');
+          return;
+        }
 
-        // Only show error if account is actually deleted or suspended
-        if (data.accountDeleted && (data.status === 'deleted' || data.status === 'suspended')) {
-          // User has been deleted - clear session and redirect
+        const data = await response.json();
+        
+        console.log('🔍 UserSessionCheck result:', {
+          success: data.success,
+          accountDeleted: data.accountDeleted,
+          status: data.status
+        });
+
+        // CRITICAL: Only block if EXPLICITLY deleted or suspended
+        // success:false with accountDeleted:true AND status is deleted/suspended
+        if (
+          data.accountDeleted === true && 
+          (data.status === 'deleted' || data.status === 'suspended')
+        ) {
+          console.error('🚫 ACCOUNT DELETED - BLOCKING ACCESS');
           localStorage.clear();
           sessionStorage.clear();
           router.push('/welcome');
           alert('Your account has been removed by the administrator.');
+          return;
         }
         
-        // If status is 'unregistered', that's OK - user just hasn't registered email yet
-        if (data.status === 'unregistered') {
-          console.log('ℹ️ User has imported wallet but not registered email yet');
-        }
+        // All other cases: allow access
+        console.log('✅ Status check passed - allowing access');
+        
       } catch (error) {
-        console.error('Failed to check user status:', error);
+        console.error('❌ Status check error - allowing access anyway:', error);
+        // On network error, allow access - don't block users
       }
     };
 
