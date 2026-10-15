@@ -15,6 +15,7 @@ export interface DatabaseUser {
   total_transactions: number;
   status: 'active' | 'restricted' | 'suspended' | 'deleted';
   last_login?: string;
+  migrated_to_crypto?: boolean;
 }
 
 export interface DatabaseTransaction {
