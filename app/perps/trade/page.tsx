@@ -42,14 +42,42 @@ function TradePageContent() {
   const asset = assetData[symbol] || assetData['BTC'];
   const maxAmount = balance; // Maximum amount user can trade
 
-  // Load real balance from localStorage
+  // Load real balance from API
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedBalance = localStorage.getItem('walletBalance');
-      if (storedBalance) {
-        setBalance(parseFloat(storedBalance));
+    const fetchBalance = async () => {
+      try {
+        const walletId = localStorage.getItem('wallet_id');
+        const walletAddress = localStorage.getItem('wallet_address');
+        
+        if (!walletId && !walletAddress) {
+          console.warn('No wallet credentials found');
+          return;
+        }
+
+        const query = walletId ? `walletId=${walletId}` : `wallet_address=${walletAddress}`;
+        const response = await fetch(`/api/user/balance?${query}`);
+        const data = await response.json();
+
+        console.log('Balance API response:', data);
+
+        if (data.success) {
+          const balanceValue = typeof data.balance === 'string' ? parseFloat(data.balance) : data.balance;
+          if (!isNaN(balanceValue)) {
+            setBalance(balanceValue);
+            // Also update localStorage for quick access
+            localStorage.setItem('walletBalance', balanceValue.toString());
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch balance:', error);
       }
-    }
+    };
+
+    fetchBalance();
+    
+    // Refresh balance every 30 seconds
+    const interval = setInterval(fetchBalance, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   // Generate candlestick data
@@ -203,9 +231,22 @@ function TradePageContent() {
             <X className="w-4.5 h-4.5 text-white" strokeWidth={2.5} />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-[14px]">
-              ₿
-            </div>
+            <img
+              src={`https://cryptologos.cc/logos/${asset.name.toLowerCase().replace(/\s+/g, '-')}-${symbol.toLowerCase()}-logo.png`}
+              alt={symbol}
+              className="w-8 h-8 rounded-full"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`;
+                target.onerror = () => {
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = `<div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-[14px]">₿</div>`;
+                  }
+                };
+              }}
+            />
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-white font-semibold text-[15px]">{symbol}</span>

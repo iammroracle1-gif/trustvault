@@ -91,19 +91,30 @@ function AssetDetailContent() {
     const fetchBalance = async () => {
       try {
         const walletId = localStorage.getItem('wallet_id');
-        if (!walletId) {
-          console.warn('No wallet ID found');
+        const walletAddress = localStorage.getItem('wallet_address');
+        
+        if (!walletId && !walletAddress) {
+          console.warn('No wallet credentials found');
           setLoading(false);
           return;
         }
 
-        const response = await fetch(`/api/user/balance?walletId=${walletId}`);
+        const query = walletId ? `walletId=${walletId}` : `wallet_address=${walletAddress}`;
+        const response = await fetch(`/api/user/balance?${query}`);
         const data = await response.json();
 
-        if (data.success && typeof data.balance === 'number') {
-          setUserBalance(data.balance);
-          // Calculate asset-specific balance (for demo, assume 1% of total balance in this asset)
-          setAssetBalance((data.balance * 0.01) / asset.price);
+        console.log('💰 Asset page balance:', data);
+
+        if (data.success) {
+          const balanceValue = typeof data.balance === 'string' ? parseFloat(data.balance) : data.balance;
+          if (!isNaN(balanceValue) && balanceValue > 0) {
+            setUserBalance(balanceValue);
+            // Calculate asset-specific balance (assume 1% of total balance is in this asset)
+            // assetBalance is in CRYPTO units, not USD
+            const assetBalanceInCrypto = (balanceValue * 0.01) / asset.price;
+            setAssetBalance(assetBalanceInCrypto);
+            console.log(`📊 Asset balance: ${assetBalanceInCrypto} ${asset.symbol} ($${balanceValue * 0.01})`);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch balance:', error);
@@ -113,7 +124,7 @@ function AssetDetailContent() {
     };
 
     fetchBalance();
-  }, [asset.price]);
+  }, [asset.price, symbol]);
 
   // Generate chart data
   useEffect(() => {

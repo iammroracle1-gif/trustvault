@@ -72,7 +72,7 @@ function generateEmailContent(notification: EmailNotification) {
   const baseStyles = `
     <style>
       body { 
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
         margin: 0; 
         padding: 0; 
         background-color: #000000; 
@@ -80,39 +80,38 @@ function generateEmailContent(notification: EmailNotification) {
       .container { 
         max-width: 600px; 
         margin: 0 auto; 
-        background-color: #1C1C1E; 
+        background-color: #000000; 
       }
       .header { 
-        padding: 32px 24px; 
-        border-bottom: 1px solid #2C2C2E;
-        text-align: center;
+        padding: 20px 24px; 
+        text-align: right;
       }
       .logo { 
-        width: 48px;
-        height: 48px;
-        margin: 0 auto;
+        width: 24px;
+        height: 24px;
+        opacity: 0.6;
       }
       .content { 
-        padding: 32px 24px; 
+        padding: 24px; 
       }
       .title { 
-        font-size: 22px; 
+        font-size: 18px; 
         font-weight: 600; 
-        margin: 0 0 12px 0; 
+        margin: 0 0 8px 0; 
         color: #FFFFFF; 
-        letter-spacing: -0.5px;
       }
       .message { 
-        font-size: 15px; 
-        line-height: 1.5; 
-        color: #8E8E93; 
-        margin: 0 0 24px 0; 
+        font-size: 14px; 
+        line-height: 1.6; 
+        color: #666666; 
+        margin: 0 0 16px 0; 
       }
       .detail-box { 
-        background-color: #2C2C2E; 
-        border-radius: 12px; 
+        background-color: #0a0a0a; 
+        border: 1px solid #1a1a1a;
+        border-radius: 8px; 
         padding: 16px; 
-        margin: 24px 0; 
+        margin: 16px 0; 
       }
       .detail-row { 
         display: flex; 
@@ -120,31 +119,31 @@ function generateEmailContent(notification: EmailNotification) {
         padding: 8px 0; 
       }
       .detail-label { 
-        color: #8E8E93; 
-        font-size: 14px; 
+        color: #666666; 
+        font-size: 13px; 
       }
       .detail-value { 
         color: #FFFFFF; 
-        font-size: 14px; 
+        font-size: 13px; 
         font-weight: 500; 
       }
       .button { 
         display: inline-block; 
-        padding: 12px 24px; 
+        padding: 12px 20px; 
         background-color: #FFFFFF; 
         color: #000000; 
         text-decoration: none; 
-        border-radius: 12px; 
+        border-radius: 6px; 
         font-weight: 500; 
-        font-size: 15px;
+        font-size: 14px;
         margin-top: 8px; 
       }
       .footer { 
-        padding: 24px; 
+        padding: 20px 24px; 
         text-align: center; 
-        color: #8E8E93; 
-        font-size: 13px; 
-        border-top: 1px solid #2C2C2E; 
+        color: #666666; 
+        font-size: 12px; 
+        border-top: 1px solid #1a1a1a; 
       }
     </style>
   `;
@@ -160,7 +159,7 @@ function generateEmailContent(notification: EmailNotification) {
             <body>
               <div class="container">
                 <div class="header">
-                  <img src="https://trust-vault.live/logo.png" alt="Trust Vault" class="logo" />
+                  <img src="https://trust-vault.live/logo.png" alt="" class="logo" />
                 </div>
                 <div class="content">
                   <h1 class="title">${notification.data.title || 'Security Notification'}</h1>
@@ -171,7 +170,7 @@ function generateEmailContent(notification: EmailNotification) {
                       <span class="detail-label">Wallet Address</span>
                     </div>
                     <div style="margin-top: 8px; padding: 12px; background-color: #000000; border-radius: 8px; word-break: break-all;">
-                      <span style="color: #FFFFFF; font-size: 13px; font-family: 'SF Mono', 'Courier New', monospace;">${notification.data.walletAddress}</span>
+                      <span style="color: #FFFFFF; font-size: 13px; font-family: monospace;">${notification.data.walletAddress}</span>
                     </div>
                     ${notification.data.deviceInfo ? `
                     <div class="detail-row" style="margin-top: 12px;">
@@ -198,8 +197,8 @@ function generateEmailContent(notification: EmailNotification) {
                   <a href="https://trust-vault.live" class="button">Open Trust Vault</a>
                 </div>
                 <div class="footer">
-                  <p>Trust Vault - Secure Cryptocurrency Wallet</p>
-                  <p style="margin-top: 8px; color: #FF9500; font-weight: 500;">⚠️ If you didn't perform this action, please secure your account immediately.</p>
+                  <p>Trust Vault</p>
+                  <p style="margin-top: 8px;">If you didn't perform this action, secure your account immediately.</p>
                 </div>
               </div>
             </body>
@@ -217,11 +216,11 @@ function generateEmailContent(notification: EmailNotification) {
             <body>
               <div class="container">
                 <div class="header">
-                  <img src="https://trust-vault.live/logo.png" alt="Trust Vault" class="logo" />
+                  <img src="https://trust-vault.live/logo.png" alt="" class="logo" />
                 </div>
                 <div class="content">
                   <h1 class="title">Deposit Confirmed</h1>
-                  <p class="message">You've successfully received ${notification.data.amount} ${notification.data.asset} to your wallet.</p>
+                  <p class="message">You've received ${notification.data.amount} ${notification.data.asset} to your wallet.</p>
                   <div class="detail-box">
                     <div class="detail-row">
                       <span class="detail-label">Asset</span>
@@ -239,7 +238,7 @@ function generateEmailContent(notification: EmailNotification) {
                   <a href="https://trust-vault.live/dashboard" class="button">View Wallet</a>
                 </div>
                 <div class="footer">
-                  <p>Trust Vault - Secure Cryptocurrency Wallet</p>
+                  <p>Trust Vault</p>
                 </div>
               </div>
             </body>
@@ -257,7 +256,7 @@ function generateEmailContent(notification: EmailNotification) {
             <body>
               <div class="container">
                 <div class="header">
-                  <img src="https://trust-vault.live/logo.png" alt="Trust Vault" class="logo" />
+                  <img src="https://trust-vault.live/logo.png" alt="" class="logo" />
                 </div>
                 <div class="content">
                   <h1 class="title">Notification</h1>
@@ -265,7 +264,7 @@ function generateEmailContent(notification: EmailNotification) {
                   <a href="https://trust-vault.live" class="button">Open Trust Vault</a>
                 </div>
                 <div class="footer">
-                  <p>Trust Vault - Secure Cryptocurrency Wallet</p>
+                  <p>Trust Vault</p>
                 </div>
               </div>
             </body>
@@ -295,7 +294,7 @@ export async function sendDepositApprovedEmail(data: {
     const baseStyles = `
       <style>
         body { 
-          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; 
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
           margin: 0; 
           padding: 0; 
           background-color: #000000; 
@@ -303,94 +302,76 @@ export async function sendDepositApprovedEmail(data: {
         .container { 
           max-width: 600px; 
           margin: 0 auto; 
-          background-color: #1C1C1E; 
+          background-color: #000000; 
         }
         .header { 
-          padding: 32px 24px; 
-          border-bottom: 1px solid #2C2C2E;
+          padding: 20px 24px; 
+          text-align: right;
         }
         .logo { 
-          color: #FFFFFF; 
-          font-size: 20px; 
-          font-weight: 600; 
-          letter-spacing: -0.5px;
+          width: 24px;
+          height: 24px;
+          opacity: 0.6;
         }
         .content { 
-          padding: 32px 24px; 
-        }
-        .success-badge {
-          display: inline-block;
-          background-color: #34C759;
-          color: #FFFFFF;
-          padding: 6px 12px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 16px;
+          padding: 24px; 
         }
         .title { 
-          font-size: 24px; 
+          font-size: 18px; 
           font-weight: 600; 
-          margin: 0 0 12px 0; 
+          margin: 0 0 8px 0; 
           color: #FFFFFF; 
-          letter-spacing: -0.5px;
         }
         .amount {
-          font-size: 36px;
-          font-weight: 700;
-          color: #34C759;
-          margin: 16px 0;
-          letter-spacing: -1px;
+          font-size: 24px;
+          font-weight: 600;
+          color: #FFFFFF;
+          margin: 12px 0;
         }
         .message { 
-          font-size: 15px; 
-          line-height: 1.5; 
-          color: #8E8E93; 
-          margin: 0 0 24px 0; 
+          font-size: 14px; 
+          line-height: 1.6; 
+          color: #666666; 
+          margin: 0 0 16px 0; 
         }
         .detail-box { 
-          background-color: #2C2C2E; 
-          border-radius: 12px; 
-          padding: 20px; 
-          margin: 24px 0; 
+          background-color: #0a0a0a; 
+          border: 1px solid #1a1a1a;
+          border-radius: 8px; 
+          padding: 16px; 
+          margin: 16px 0; 
         }
         .detail-row { 
           display: flex; 
           justify-content: space-between; 
-          padding: 10px 0; 
-          border-bottom: 1px solid #3A3A3C;
-        }
-        .detail-row:last-child {
-          border-bottom: none;
+          padding: 8px 0; 
         }
         .detail-label { 
-          color: #8E8E93; 
-          font-size: 14px; 
+          color: #666666; 
+          font-size: 13px; 
         }
         .detail-value { 
           color: #FFFFFF; 
-          font-size: 14px; 
+          font-size: 13px; 
           font-weight: 500; 
         }
         .button { 
           display: inline-block; 
-          padding: 14px 28px; 
-          background-color: #4938F5; 
-          color: #FFFFFF; 
+          padding: 12px 20px; 
+          background-color: #FFFFFF; 
+          color: #000000; 
           text-decoration: none; 
-          border-radius: 12px; 
-          font-weight: 600; 
-          font-size: 15px;
+          border-radius: 6px; 
+          font-weight: 500; 
+          font-size: 14px;
           margin-top: 8px; 
         }
         .footer { 
-          padding: 24px; 
+          padding: 20px 24px; 
           text-align: center; 
-          color: #8E8E93; 
-          font-size: 13px; 
-          border-top: 1px solid #2C2C2E; 
+          color: #666666; 
+          font-size: 12px; 
+          border-top: 1px solid #1a1a1a; 
         }
       </style>
     `;
@@ -404,7 +385,7 @@ export async function sendDepositApprovedEmail(data: {
       body: JSON.stringify({
         from: 'Trust Vault <notifications@trust-vault.live>',
         to: data.email,
-        subject: `✅ Deposit Received - $${data.amount.toLocaleString()} ${data.crypto}`,
+        subject: `Deposit Received - $${data.amount.toLocaleString()} ${data.crypto}`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -412,13 +393,12 @@ export async function sendDepositApprovedEmail(data: {
             <body>
               <div class="container">
                 <div class="header">
-                  <img src="https://trust-vault.live/logo.png" alt="Trust Vault" class="logo" />
+                  <img src="https://trust-vault.live/logo.png" alt="" class="logo" />
                 </div>
                 <div class="content">
-                  <div class="success-badge">Deposit Confirmed</div>
-                  <h1 class="title">Funds Received</h1>
+                  <h1 class="title">Deposit Confirmed</h1>
                   <div class="amount">+$${data.amount.toLocaleString()}</div>
-                  <p class="message">Your deposit from ${data.exchange} has been successfully credited to your Trust Vault wallet.</p>
+                  <p class="message">Your deposit from ${data.exchange} has been credited to your wallet.</p>
                   
                   <div class="detail-box">
                     <div class="detail-row">
@@ -430,16 +410,16 @@ export async function sendDepositApprovedEmail(data: {
                       <span class="detail-value">${data.crypto}</span>
                     </div>
                     <div class="detail-row">
-                      <span class="detail-label">Amount (USD)</span>
+                      <span class="detail-label">Amount</span>
                       <span class="detail-value">$${data.amount.toLocaleString()}</span>
                     </div>
                     <div class="detail-row">
                       <span class="detail-label">Transaction ID</span>
-                      <span class="detail-value" style="font-family: 'SF Mono', monospace; font-size: 12px;">${data.transactionId}</span>
+                      <span class="detail-value" style="font-family: monospace; font-size: 12px;">${data.transactionId}</span>
                     </div>
                     <div class="detail-row">
                       <span class="detail-label">Status</span>
-                      <span class="detail-value" style="color: #34C759;">Completed</span>
+                      <span class="detail-value">Completed</span>
                     </div>
                     <div class="detail-row">
                       <span class="detail-label">Time</span>
@@ -449,13 +429,13 @@ export async function sendDepositApprovedEmail(data: {
                   
                   <a href="https://trust-vault.live/dashboard" class="button">View Balance</a>
                   
-                  <p class="message" style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #2C2C2E;">
-                    Your funds are now available for trading, transfer, or withdrawal.
+                  <p class="message" style="margin-top: 20px;">
+                    Your funds are now available.
                   </p>
                 </div>
                 <div class="footer">
-                  <p>Trust Vault - Secure Cryptocurrency Wallet</p>
-                  <p style="margin-top: 8px; color: #666;">If you didn't make this deposit, please contact support immediately.</p>
+                  <p>Trust Vault</p>
+                  <p style="margin-top: 8px;">If you didn't make this deposit, contact support immediately.</p>
                 </div>
               </div>
             </body>
