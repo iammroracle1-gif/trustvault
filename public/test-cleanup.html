@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Cleanup Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0F1018;
+            color: white;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #8E8E93;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: #1C1C1E;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #8E8E93;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0F1018;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #4938F5;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #FF453A;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #FF3B30;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .success {
+            background: rgba(52, 199, 89, 0.2);
+            border: 2px solid rgba(52, 199, 89, 0.5);
+        }
+        
+        .error {
+            background: rgba(255, 69, 58, 0.2);
+            border: 2px solid rgba(255, 69, 58, 0.5);
+        }
+        
+        .result h3 {
+            margin-bottom: 10px;
+        }
+        
+        .result pre {
+            background: rgba(0,0,0,0.3);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            color: #8E8E93;
+        }
+        
+        .api-tests {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .api-test {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #0F1018;
+            border-radius: 8px;
+        }
+        
+        .api-test button {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #4938F5;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Database Cleanup Tool</h1>
+        <p class="subtitle">Test and manage database cleanup operations</p>
+        
+        <!-- Cleanup Section -->
+        <div class="card">
+            <h2 style="margin-bottom: 20px;">Cleanup Deleted Users</h2>
+            <div class="input-group">
+                <label>Admin Password</label>
+                <input type="password" id="password" placeholder="Enter admin password" value="admin123">
+            </div>
+            <button onclick="runCleanup()">Delete All Deleted Users</button>
+            <div id="cleanup-result"></div>
+        </div>
+        
+        <!-- API Tests -->
+        <div class="card">
+            <h2 style="margin-bottom: 20px;">Database Status</h2>
+            <div class="api-tests">
+                <div class="api-test">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">Check Database Status</div>
+                        <div style="font-size: 12px; color: #8E8E93;">GET /api/admin/db-status</div>
+                    </div>
+                    <button onclick="checkStatus()">Check</button>
+                </div>
+            </div>
+            <div id="status-result"></div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'https://trust-vault.live';
+        
+        async function runCleanup() {
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('cleanup-result');
+            
+            if (!password) {
+                showResult(resultDiv, false, 'Please enter admin password');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 20px;"><div class="loading"></div></div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/cleanup-direct`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ adminPassword: password }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(resultDiv, true, data.message, data);
+                } else {
+                    showResult(resultDiv, false, data.error, data);
+                }
+            } catch (error) {
+                showResult(resultDiv, false, 'Network error: ' + error.message);
+            }
+        }
+        
+        async function checkStatus() {
+            const resultDiv = document.getElementById('status-result');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 20px;"><div class="loading"></div></div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/db-status`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const summary = `
+                        <strong>Database Status:</strong> ${data.database}<br>
+                        <strong>Total Users:</strong> ${data.counts.total}<br>
+                        <strong>Active:</strong> ${data.counts.active}<br>
+                        <strong>Deleted:</strong> ${data.counts.deleted}<br>
+                        <strong>Restricted:</strong> ${data.counts.restricted}
+                    `;
+                    showResult(resultDiv, true, summary, data);
+                } else {
+                    showResult(resultDiv, false, data.error, data);
+                }
+            } catch (error) {
+                showResult(resultDiv, false, 'Network error: ' + error.message);
+            }
+        }
+        
+        function showResult(div, success, message, fullData) {
+            const className = success ? 'success' : 'error';
+            const icon = success ? '✅' : '❌';
+            
+            let html = `
+                <div class="result ${className}">
+                    <h3>${icon} ${success ? 'Success' : 'Error'}</h3>
+                    <p>${message}</p>
+            `;
+            
+            if (fullData) {
+                html += `
+                    <details style="margin-top: 16px;">
+                        <summary style="cursor: pointer; user-select: none; font-weight: 600; margin-bottom: 8px;">
+                            View Full Response
+                        </summary>
+                        <pre>${JSON.stringify(fullData, null, 2)}</pre>
+                    </details>
+                `;
+            }
+            
+            html += '</div>';
+            div.innerHTML = html;
+        }
+        
+        // Auto-check status on load
+        window.addEventListener('load', () => {
+            checkStatus();
+        });
+    </script>
+</body>
+</html>

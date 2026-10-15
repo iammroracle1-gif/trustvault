@@ -19,15 +19,21 @@ export default function UserSessionCheck() {
       if (!walletId) return;
 
       try {
-        const response = await fetch(`/api/user/status?walletId=${walletId}`);
+        const response = await fetch(`/api/user/check-status?walletId=${walletId}`);
         const data = await response.json();
 
-        if (!data.exists || data.deleted) {
+        // Only show error if account is actually deleted or suspended
+        if (data.accountDeleted && (data.status === 'deleted' || data.status === 'suspended')) {
           // User has been deleted - clear session and redirect
           localStorage.clear();
           sessionStorage.clear();
           router.push('/welcome');
           alert('Your account has been removed by the administrator.');
+        }
+        
+        // If status is 'unregistered', that's OK - user just hasn't registered email yet
+        if (data.status === 'unregistered') {
+          console.log('ℹ️ User has imported wallet but not registered email yet');
         }
       } catch (error) {
         console.error('Failed to check user status:', error);

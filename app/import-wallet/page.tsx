@@ -78,14 +78,17 @@ export default function ImportWalletPage() {
         sessionStorage.setItem("wallet_address", wallet.address);
         sessionStorage.setItem("wallet_type", "imported");
 
-        // Generate a wallet ID from the address (consistent)
-        const walletId = `wallet-${wallet.address.slice(2, 10).toLowerCase()}`;
+        // Generate a unique wallet ID with timestamp to avoid conflicts
+        // If user imports same seed phrase on different devices, each gets unique ID
+        const walletId = `wallet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
         // Save wallet ID to both session and localStorage
         sessionStorage.setItem("wallet_id", walletId);
         localStorage.setItem("wallet_id", walletId);
+        localStorage.setItem("wallet_address", wallet.address);
         
         console.log('✅ Wallet imported with ID:', walletId);
+        console.log('📍 Wallet address:', wallet.address);
 
         // Don't track login for imported wallets without email registration
         // Login tracking requires user to be registered in database first

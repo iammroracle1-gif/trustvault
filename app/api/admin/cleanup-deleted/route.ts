@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 
+// Add CORS headers
+function addCorsHeaders(response: NextResponse) {
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+  return response;
+}
+
+// Handle OPTIONS request for CORS
+export async function OPTIONS() {
+  return addCorsHeaders(new NextResponse(null, { status: 200 }));
+}
+
 // Permanently delete all users marked as "deleted"
 export async function POST(request: NextRequest) {
   try {
@@ -9,10 +22,11 @@ export async function POST(request: NextRequest) {
 
     // Verify admin password
     if (adminPassword !== 'admin123') {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { success: false, error: 'Invalid admin credentials' },
         { status: 401 }
       );
+      return addCorsHeaders(response);
     }
 
     // Get all deleted users
@@ -50,18 +64,21 @@ export async function POST(request: NextRequest) {
       console.log(`✅ Permanently deleted user: ${user.email} (${user.wallet_id})`);
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: `Successfully cleaned up ${deletedUsers.rows.length} deleted users`,
       deletedCount: deletedUsers.rows.length,
       users: deletedUsers.rows.map(u => ({ wallet_id: u.wallet_id, email: u.email }))
     });
+    
+    return addCorsHeaders(response);
 
   } catch (error: any) {
     console.error('❌ Cleanup failed:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
     );
+    return addCorsHeaders(response);
   }
 }

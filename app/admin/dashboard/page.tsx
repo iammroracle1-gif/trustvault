@@ -635,6 +635,8 @@ function ReportsView({ stats }: { stats: any }) {
 
 // Settings View Component
 function SettingsView() {
+  const router = useRouter();
+  
   return (
     <div className="space-y-6">
       <div className="bg-[#1C1C1E] border border-white/10 rounded-2xl p-6">
@@ -648,6 +650,40 @@ function SettingsView() {
             <label className="block text-[#8E8E93] text-[13px] font-medium mb-2">Security Settings</label>
             <p className="text-white text-[15px]">Manage admin authentication and 2FA</p>
           </div>
+        </div>
+      </div>
+
+      {/* Database Management Tools */}
+      <div className="bg-[#1C1C1E] border border-white/10 rounded-2xl p-6">
+        <h3 className="text-white text-[17px] font-semibold mb-4">Database Management</h3>
+        <div className="space-y-3">
+          <button
+            onClick={() => router.push('/admin/database')}
+            className="w-full flex items-center justify-between p-4 bg-[#0F1018] hover:bg-[#2C2C2E] border border-white/10 rounded-xl transition-colors group"
+          >
+            <div className="flex items-center gap-3">
+              <Activity className="w-5 h-5 text-[#4938F5]" />
+              <div className="text-left">
+                <p className="text-white text-[15px] font-medium">View Database Status</p>
+                <p className="text-[#8E8E93] text-[13px]">Manage users and database cleanup</p>
+              </div>
+            </div>
+            <div className="text-[#4938F5] group-hover:translate-x-1 transition-transform">→</div>
+          </button>
+
+          <button
+            onClick={() => router.push('/admin/cleanup')}
+            className="w-full flex items-center justify-between p-4 bg-[#0F1018] hover:bg-[#2C2C2E] border border-white/10 rounded-xl transition-colors group"
+          >
+            <div className="flex items-center gap-3">
+              <Trash2 className="w-5 h-5 text-[#FF453A]" />
+              <div className="text-left">
+                <p className="text-white text-[15px] font-medium">Cleanup Deleted Users</p>
+                <p className="text-[#8E8E93] text-[13px]">Permanently remove users marked as deleted</p>
+              </div>
+            </div>
+            <div className="text-[#4938F5] group-hover:translate-x-1 transition-transform">→</div>
+          </button>
         </div>
       </div>
     </div>
