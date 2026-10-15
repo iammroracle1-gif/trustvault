@@ -71,24 +71,51 @@ export async function POST(request: NextRequest) {
     // Create in-app notification entry (for notification system)
     try {
       const { sql } = await import('@vercel/postgres');
-      await sql`
-        INSERT INTO deposit_requests (
-          wallet_id,
-          amount,
-          crypto,
-          status,
-          created_at,
-          approved_at
-        ) VALUES (
-          ${walletId},
-          ${usdValue},
-          ${currency},
-          'approved',
-          NOW(),
-          NOW()
-        )
-      `;
-      console.log(`✅ Created in-app notification for ${currency} deposit`);
+      
+      // First, try to insert with approved_at
+      try {
+        await sql`
+          INSERT INTO deposit_requests (
+            wallet_id,
+            amount,
+            crypto,
+            status,
+            created_at,
+            approved_at
+          ) VALUES (
+            ${walletId},
+            ${usdValue},
+            ${currency},
+            'approved',
+            NOW(),
+            NOW()
+          )
+        `;
+        console.log(`✅ Created in-app notification for ${currency} deposit with approved_at`);
+      } catch (insertError: any) {
+        // If approved_at column doesn't exist, try without it
+        if (insertError.message?.includes('approved_at')) {
+          console.log('⚠️ approved_at column missing, trying without it...');
+          await sql`
+            INSERT INTO deposit_requests (
+              wallet_id,
+              amount,
+              crypto,
+              status,
+              created_at
+            ) VALUES (
+              ${walletId},
+              ${usdValue},
+              ${currency},
+              'approved',
+              NOW()
+            )
+          `;
+          console.log(`✅ Created in-app notification for ${currency} deposit (no approved_at)`);
+        } else {
+          throw insertError;
+        }
+      }
     } catch (notifError) {
       console.error('Failed to create notification entry:', notifError);
       // Don't fail the request if notification fails

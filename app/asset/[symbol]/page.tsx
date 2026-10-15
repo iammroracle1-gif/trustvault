@@ -99,21 +99,28 @@ function AssetDetailContent() {
           return;
         }
 
+        // Fetch crypto balances
         const query = walletId ? `walletId=${walletId}` : `wallet_address=${walletAddress}`;
-        const response = await fetch(`/api/user/balance?${query}`);
+        const response = await fetch(`/api/user/crypto-balances?${query}`);
         const data = await response.json();
 
-        console.log('💰 Asset page balance:', data);
+        console.log('💰 Asset page crypto balances:', data);
 
         if (data.success) {
-          const balanceValue = typeof data.balance === 'string' ? parseFloat(data.balance) : data.balance;
-          if (!isNaN(balanceValue) && balanceValue > 0) {
-            setUserBalance(balanceValue);
-            // Calculate asset-specific balance (assume 1% of total balance is in this asset)
-            // assetBalance is in CRYPTO units, not USD
-            const assetBalanceInCrypto = (balanceValue * 0.01) / asset.price;
-            setAssetBalance(assetBalanceInCrypto);
-            console.log(`📊 Asset balance: ${assetBalanceInCrypto} ${asset.symbol} ($${balanceValue * 0.01})`);
+          // Set total USD balance
+          setUserBalance(data.totalUsd || 0);
+          
+          // Find this specific asset's balance
+          const thisAssetBalance = data.balances?.find((b: any) => b.currency === symbol);
+          
+          if (thisAssetBalance) {
+            // Use actual balance from database
+            setAssetBalance(thisAssetBalance.amount);
+            console.log(`✅ Found ${symbol} balance:`, thisAssetBalance.amount, symbol);
+          } else {
+            // No balance for this asset
+            setAssetBalance(0);
+            console.log(`ℹ️ No ${symbol} balance found`);
           }
         }
       } catch (error) {
