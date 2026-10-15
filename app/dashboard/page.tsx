@@ -9,6 +9,7 @@ import WalletModal from "@/components/WalletModal";
 import CustomizeWalletModal from "@/components/CustomizeWalletModal";
 import BottomNav from "@/components/BottomNav";
 import RestrictionWarning from "@/components/RestrictionWarning";
+import AccountDeletedModal from "@/components/AccountDeletedModal";
 import { WalletIcons } from "@/components/WalletIcons";
 import { fetchMarketTickers, formatPrice, type MarketTicker } from "@/lib/market-api";
 import { getEthereumBalance } from "@/lib/api/ethereum";
@@ -53,6 +54,7 @@ function DashboardContent() {
   const [recentActivity, setRecentActivity] = useState<Transaction[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [showAccountDeleted, setShowAccountDeleted] = useState(false);
   const [wallets, setWallets] = useState<Wallet[]>([
     {
       id: "wallet-1",
@@ -62,6 +64,24 @@ function DashboardContent() {
       isActive: true,
     },
   ]);
+
+  // Check account status periodically
+  const checkAccountStatus = async () => {
+    try {
+      const walletId = localStorage.getItem('wallet_id');
+      if (!walletId) return;
+
+      const response = await fetch(`/api/user/check-status?walletId=${walletId}`);
+      const data = await response.json();
+
+      if (data.accountDeleted || data.status === 'deleted' || data.status === 'suspended') {
+        console.log('🚫 Account has been deleted/suspended');
+        setShowAccountDeleted(true);
+      }
+    } catch (error) {
+      console.error('❌ Failed to check account status:', error);
+    }
+  };
 
   // Fetch balance from database
   const fetchBalance = async () => {
@@ -132,6 +152,8 @@ function DashboardContent() {
         const existingActivities = JSON.parse(localStorage.getItem('recentActivity') || '[]');
         const mergedActivities = [...data.activities, ...existingActivities].slice(0, 50); // Keep last 50
         localStorage.setItem('recentActivity', JSON.stringify(mergedActivities));
+        
+        // Force immediate UI update
         setRecentActivity(mergedActivities);
 
         // Update unread count
@@ -142,8 +164,12 @@ function DashboardContent() {
           newNotifications: data.count,
           totalNotifications: mergedNotifications.length,
           totalActivities: mergedActivities.length,
-          unread
+          unread,
+          latestActivity: mergedActivities[0]
         });
+        
+        // Trigger a re-render by updating a timestamp
+        console.log('🔄 UI should update now');
       } else {
         console.log('ℹ️ No new notifications');
       }
@@ -181,6 +207,9 @@ function DashboardContent() {
     // Fetch balance from database
     fetchBalance();
     
+    // Check account status immediately
+    checkAccountStatus();
+    
     // Fetch pending notifications immediately
     fetchPendingNotifications();
     
@@ -189,6 +218,9 @@ function DashboardContent() {
     
     // Set up periodic notification polling (every 30 seconds)
     const notificationInterval = setInterval(fetchPendingNotifications, 30000);
+    
+    // Set up periodic account status check (every 10 seconds)
+    const statusInterval = setInterval(checkAccountStatus, 10000);
     
     // Check if there's a newly customized wallet from creation flow
     const walletName = sessionStorage.getItem("wallet_name");
@@ -249,6 +281,7 @@ function DashboardContent() {
     return () => {
       clearInterval(balanceInterval);
       clearInterval(notificationInterval);
+      clearInterval(statusInterval);
     };
   }, []);
 
@@ -297,7 +330,11 @@ function DashboardContent() {
     try {
       const saved = localStorage.getItem('recentActivity');
       if (saved) {
-        setRecentActivity(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        console.log('📝 Loaded recent activity:', parsed);
+        setRecentActivity(parsed);
+      } else {
+        console.log('📝 No recent activity in localStorage');
       }
     } catch (error) {
       console.error('Failed to load recent activity:', error);
@@ -310,6 +347,7 @@ function DashboardContent() {
       if (saved) {
         const notifications = JSON.parse(saved);
         const unread = notifications.filter((n: any) => !n.read).length;
+        console.log('🔔 Unread notifications:', unread);
         setUnreadNotifications(unread);
       }
     } catch (error) {
@@ -603,6 +641,15 @@ function DashboardContent() {
 
       {/* Bottom Navigation - Glass Morphism Style */}
       <BottomNav />
+
+      {/* Account Deleted Modal */}
+      {showAccountDeleted && (
+        <AccountDeletedModal
+          onConfirm={() => {
+            console.log('User acknowledged account deletion');
+          }}
+        />
+      )}
 
       {/* Send Modal */}
       {showSend && (

@@ -27,13 +27,26 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     loadNotifications();
+    
+    // Reload notifications every 10 seconds to update timestamps
+    const interval = setInterval(() => {
+      loadNotifications();
+    }, 10000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const loadNotifications = () => {
     try {
       const saved = localStorage.getItem('notifications');
       if (saved) {
-        setNotifications(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        // Update timestamps to show proper time ago
+        const updated = parsed.map((n: Notification) => ({
+          ...n,
+          time: formatTimeAgo(n.timestamp)
+        }));
+        setNotifications(updated);
       } else {
         // Initialize with welcome notifications for new users
         const welcomeNotifications: Notification[] = [
@@ -66,6 +79,20 @@ export default function NotificationsPage() {
     } catch (error) {
       console.error('Failed to load notifications:', error);
     }
+  };
+
+  // Format timestamp to readable time ago
+  const formatTimeAgo = (timestamp: number): string => {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    
+    // For older than a week, show actual date
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   // Helper function to get icon component from name

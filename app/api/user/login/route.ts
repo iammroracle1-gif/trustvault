@@ -37,18 +37,27 @@ export async function POST(request: NextRequest) {
 
     // Send login notification email
     try {
+      console.log('📧 Sending login notification email to:', user.email);
       await sendTransactionEmail({
         to: user.email,
         type: 'security',
         data: {
           title: 'New Login Detected',
-          message: `A login was detected on your Trust Vault account from ${new Date().toLocaleString()}.`,
+          message: `A login was detected on your Trust Vault account on ${new Date().toLocaleString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          })}.`,
           walletAddress: user.wallet_address,
           loginTime: new Date().toISOString(),
         },
       });
+      console.log('✅ Login email sent successfully to:', user.email);
     } catch (emailError) {
-      console.log('Login email notification failed (non-critical):', emailError);
+      console.error('❌ Login email notification failed:', emailError);
     }
 
     return NextResponse.json({
