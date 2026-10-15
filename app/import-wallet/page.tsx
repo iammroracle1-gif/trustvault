@@ -75,27 +75,27 @@ export default function ImportWalletPage() {
         const { ethers } = await import("ethers");
         const wallet = ethers.Wallet.fromPhrase(seedPhrase);
 
-        sessionStorage.setItem("wallet_address", wallet.address);
+        // Store wallet address
+        const walletAddress = wallet.address;
+        
+        sessionStorage.setItem("wallet_address", walletAddress);
         sessionStorage.setItem("wallet_type", "imported");
 
-        // Generate a unique wallet ID with timestamp to avoid conflicts
-        // If user imports same seed phrase on different devices, each gets unique ID
-        const walletId = `wallet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        // Generate wallet_id from ADDRESS (consistent across devices)
+        // Same seed phrase = same address = same wallet_id
+        const walletId = `wallet-${walletAddress.slice(2, 18).toLowerCase()}`;
         
-        // Save wallet ID to both session and localStorage
+        // Save wallet ID
         sessionStorage.setItem("wallet_id", walletId);
         localStorage.setItem("wallet_id", walletId);
-        localStorage.setItem("wallet_address", wallet.address);
+        localStorage.setItem("wallet_address", walletAddress);
         
-        console.log('✅ Wallet imported with ID:', walletId);
-        console.log('📍 Wallet address:', wallet.address);
-
-        // Don't track login for imported wallets without email registration
-        // Login tracking requires user to be registered in database first
-        console.log('⚠️ Imported wallet - skipping login tracking (register email first)');
+        console.log('✅ Wallet imported');
+        console.log('📍 Address:', walletAddress);
+        console.log('🆔 Wallet ID:', walletId, '(derived from address - consistent)');
 
         // Store wallet address and show loading screen
-        setWalletAddress(wallet.address);
+        setWalletAddress(walletAddress);
         setShowLoading(true);
       } catch (err: any) {
         console.error("Import error:", err);

@@ -47,8 +47,9 @@ export async function POST(request: NextRequest) {
       }, { status: 409 });
     }
 
-    // Generate wallet ID
-    const walletId = `wallet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // Generate wallet ID from address (consistent across devices)
+    // Same address = same wallet_id
+    const walletId = `wallet-${walletAddress.slice(2, 18).toLowerCase()}`;
     console.log('🆔 Generated wallet ID:', walletId);
 
     // Create user in database
