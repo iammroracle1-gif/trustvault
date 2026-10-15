@@ -109,7 +109,7 @@ export async function getUserByWalletId(walletId: string): Promise<DatabaseUser 
   }
 }
 
-// Get user by email
+// Get user by email (exclude deleted users)
 export async function getUserByEmail(email: string): Promise<DatabaseUser | null> {
   try {
     if (!(await isDatabaseAvailable())) {
@@ -117,7 +117,9 @@ export async function getUserByEmail(email: string): Promise<DatabaseUser | null
     }
 
     const result = await sql`
-      SELECT * FROM users WHERE email = ${email}
+      SELECT * FROM users 
+      WHERE email = ${email} 
+        AND status != 'deleted'
     `;
 
     return result.rows[0] as DatabaseUser || null;
