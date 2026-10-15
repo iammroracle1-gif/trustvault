@@ -13,7 +13,7 @@ export interface DatabaseUser {
   created_at: string;
   last_activity: string;
   total_transactions: number;
-  status: 'active' | 'restricted' | 'suspended';
+  status: 'active' | 'restricted' | 'suspended' | 'deleted';
   last_login?: string;
 }
 
@@ -127,16 +127,16 @@ export async function getUserByEmail(email: string): Promise<DatabaseUser | null
   }
 }
 
-// Get all users (for admin panel)
-export async function getAllUsers(): Promise<DatabaseUser[]> {
+// Get all users (for admin panel) - excludes deleted users by default
+export async function getAllUsers(includeDeleted: boolean = false): Promise<DatabaseUser[]> {
   try {
     if (!(await isDatabaseAvailable())) {
       return [];
     }
 
-    const result = await sql`
-      SELECT * FROM users ORDER BY created_at DESC
-    `;
+    const result = includeDeleted 
+      ? await sql`SELECT * FROM users ORDER BY created_at DESC`
+      : await sql`SELECT * FROM users WHERE status != 'deleted' ORDER BY created_at DESC`;
 
     return result.rows as DatabaseUser[];
   } catch (error) {
@@ -192,22 +192,19 @@ export async function updateLastLogin(walletId: string): Promise<void> {
   }
 }
 
-// Delete user permanently
+// Delete user (mark as deleted, don't permanently remove)
 export async function deleteUser(walletId: string): Promise<boolean> {
   try {
     if (!(await isDatabaseAvailable())) {
       return false;
     }
 
-    // Delete user's transactions first (foreign key constraint)
+    // Mark user as deleted instead of permanently removing
+    // This prevents deleted users from logging in via passphrase
     await sql`
-      DELETE FROM transactions 
-      WHERE user_id = ${walletId}
-    `;
-
-    // Delete user
-    await sql`
-      DELETE FROM users 
+      UPDATE users 
+      SET status = 'deleted',
+          last_activity = NOW()
       WHERE wallet_id = ${walletId}
     `;
 

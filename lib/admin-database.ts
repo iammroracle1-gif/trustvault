@@ -10,7 +10,7 @@ export interface User {
   createdAt: string;
   lastActivity: string;
   totalTransactions: number;
-  status: 'active' | 'restricted' | 'suspended';
+  status: 'active' | 'restricted' | 'suspended' | 'deleted';
 }
 
 export interface Transaction {

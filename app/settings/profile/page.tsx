@@ -17,8 +17,10 @@ export default function ProfilePage() {
   const router = useRouter();
   const [wallets, setWallets] = useState<WalletData[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
+    // Load wallets
     const saved = localStorage.getItem("vaultora_wallets");
     if (saved) {
       try {
@@ -26,6 +28,12 @@ export default function ProfilePage() {
       } catch (error) {
         console.error("Error loading wallets:", error);
       }
+    }
+
+    // Load registered email
+    const userEmail = localStorage.getItem("wallet_email") || sessionStorage.getItem("wallet_email");
+    if (userEmail) {
+      setEmail(userEmail);
     }
   }, []);
 
@@ -82,6 +90,27 @@ export default function ProfilePage() {
               >
                 <Edit2 className="w-[18px] h-[18px] text-white" />
               </button>
+            </div>
+            
+            <div className="bg-white/10 backdrop-blur-sm rounded-[18px] p-4 mb-3">
+              <p className="text-white/60 text-[11px] uppercase tracking-wider mb-2 font-semibold">Email Address</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-white text-[15px] tracking-tight">
+                  {email || "No email registered"}
+                </p>
+                {email && (
+                  <button
+                    onClick={() => copyAddress(email, "email")}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors active:scale-95"
+                  >
+                    {copiedId === "email" ? (
+                      <Check className="w-[18px] h-[18px] text-[#34C759]" strokeWidth={2.5} />
+                    ) : (
+                      <Copy className="w-[18px] h-[18px] text-white" strokeWidth={2} />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
             
             <div className="bg-white/10 backdrop-blur-sm rounded-[18px] p-4">

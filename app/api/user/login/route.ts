@@ -24,6 +24,14 @@ export async function POST(request: NextRequest) {
       }, { status: 404 });
     }
 
+    // Check if user is deleted or suspended
+    if (user.status === 'deleted' || user.status === 'suspended') {
+      return NextResponse.json({
+        success: false,
+        error: 'This account has been disabled. Please contact support.',
+      }, { status: 403 });
+    }
+
     // Update last login time
     await updateLastLogin(walletId);
 
