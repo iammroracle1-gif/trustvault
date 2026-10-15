@@ -216,17 +216,25 @@ export async function deleteUser(walletId: string): Promise<boolean> {
       return false;
     }
 
-    // Delete user's deposit requests first (foreign key)
-    await sql`
-      DELETE FROM deposit_requests 
-      WHERE wallet_id = ${walletId}
-    `;
+    // Delete user's deposit requests first (if table exists)
+    try {
+      await sql`
+        DELETE FROM deposit_requests 
+        WHERE wallet_id = ${walletId}
+      `;
+    } catch (e) {
+      console.log('deposit_requests table does not exist, skipping...');
+    }
 
-    // Delete user's transactions (foreign key)
-    await sql`
-      DELETE FROM transactions 
-      WHERE user_id = ${walletId}
-    `;
+    // Delete user's transactions (if table exists)
+    try {
+      await sql`
+        DELETE FROM transactions 
+        WHERE user_id = ${walletId}
+      `;
+    } catch (e) {
+      console.log('transactions table does not exist, skipping...');
+    }
 
     // Delete user permanently
     await sql`

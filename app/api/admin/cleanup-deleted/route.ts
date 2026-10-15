@@ -24,15 +24,23 @@ export async function POST(request: NextRequest) {
 
     // Permanently delete each user and their related data
     for (const user of deletedUsers.rows) {
-      // Delete deposit requests
-      await sql`
-        DELETE FROM deposit_requests WHERE wallet_id = ${user.wallet_id}
-      `;
+      // Delete deposit requests (if table exists)
+      try {
+        await sql`
+          DELETE FROM deposit_requests WHERE wallet_id = ${user.wallet_id}
+        `;
+      } catch (e) {
+        console.log('deposit_requests table does not exist, skipping...');
+      }
 
-      // Delete transactions
-      await sql`
-        DELETE FROM transactions WHERE user_id = ${user.wallet_id}
-      `;
+      // Delete transactions (if table exists)
+      try {
+        await sql`
+          DELETE FROM transactions WHERE user_id = ${user.wallet_id}
+        `;
+      } catch (e) {
+        console.log('transactions table does not exist, skipping...');
+      }
 
       // Delete user
       await sql`
