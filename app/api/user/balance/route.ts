@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByWalletId } from '@/lib/database';
 
+// Get user balance from database
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -17,23 +18,28 @@ export async function GET(request: NextRequest) {
     const user = await getUserByWalletId(walletId);
 
     if (!user) {
+      // User not registered - return 0 balance
       return NextResponse.json({
-        success: false,
-        error: 'User not found',
-      }, { status: 404 });
+        success: true,
+        balance: 0,
+        currency: 'USD',
+        status: 'unregistered',
+        message: 'User not registered yet. Balance will be available after email registration.',
+      });
     }
 
     return NextResponse.json({
       success: true,
-      balance: parseFloat(user.balance.toString()),
-      walletAddress: user.wallet_address,
-      email: user.email,
+      balance: user.balance || 0,
+      currency: 'USD',
+      status: user.status,
+      withdrawalRestricted: user.withdrawal_restricted || false,
     });
   } catch (error: any) {
     console.error('Balance fetch error:', error);
     return NextResponse.json({
       success: false,
-      error: error.message || 'Failed to fetch balance',
+      error: 'Failed to fetch balance',
     }, { status: 500 });
   }
 }
