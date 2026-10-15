@@ -33,20 +33,26 @@ export default function BackupPhrasePage() {
     const address = sessionStorage.getItem("wallet_address");
     sessionStorage.removeItem("temp_mnemonic");
     
-    // Get wallet ID from localStorage (if exists from registration)
-    const walletId = localStorage.getItem('walletId');
+    // Get wallet ID from localStorage (should exist from registration)
+    const walletId = localStorage.getItem('wallet_id');
+    
+    console.log('✅ Continuing with wallet ID:', walletId);
     
     // Track login and send welcome email
     if (walletId) {
       try {
-        await fetch('/api/user/login', {
+        const response = await fetch('/api/user/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ walletId }),
         });
+        const data = await response.json();
+        console.log('Login tracking response:', data);
       } catch (err) {
-        console.log('Login tracking failed (non-critical)');
+        console.log('Login tracking failed (non-critical):', err);
       }
+    } else {
+      console.warn('⚠️ No wallet_id found in localStorage');
     }
     
     // Show loading screen

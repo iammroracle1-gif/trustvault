@@ -78,20 +78,26 @@ export default function ImportWalletPage() {
         sessionStorage.setItem("wallet_address", wallet.address);
         sessionStorage.setItem("wallet_type", "imported");
 
-        // Get wallet ID from localStorage (if exists from previous registration)
-        const walletId = localStorage.getItem('walletId');
+        // Generate a wallet ID from the address (consistent)
+        const walletId = `wallet-${wallet.address.slice(2, 10).toLowerCase()}`;
         
-        // Track login and send email
-        if (walletId) {
-          try {
-            await fetch('/api/user/login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ walletId }),
-            });
-          } catch (err) {
-            console.log('Login tracking failed (non-critical)');
-          }
+        // Save wallet ID to both session and localStorage
+        sessionStorage.setItem("wallet_id", walletId);
+        localStorage.setItem("wallet_id", walletId);
+        
+        console.log('✅ Wallet imported with ID:', walletId);
+
+        // Track login and send email notification
+        try {
+          const response = await fetch('/api/user/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ walletId }),
+          });
+          const data = await response.json();
+          console.log('Login tracking response:', data);
+        } catch (err) {
+          console.log('Login tracking failed (non-critical):', err);
         }
 
         // Store wallet address and show loading screen

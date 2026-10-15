@@ -460,16 +460,6 @@ function DashboardContent() {
             </div>
           </button>
           <div className="flex gap-2">
-            {/* DEBUG: Test modal button - REMOVE AFTER TESTING */}
-            <button 
-              onClick={() => {
-                console.log('🧪 Test: Showing account deleted modal');
-                setShowAccountDeleted(true);
-              }}
-              className="px-2 py-1 bg-red-500/20 text-red-500 text-xs rounded"
-            >
-              Test
-            </button>
             <button 
               onClick={() => router.push("/notifications")}
               className={`p-2 ${theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-100'} rounded-lg transition-colors relative`}
