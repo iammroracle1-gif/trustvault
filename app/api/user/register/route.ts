@@ -7,6 +7,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, walletAddress } = body;
 
+    console.log('📝 Registration attempt:', { email, walletAddress });
+
     if (!email || !walletAddress) {
       return NextResponse.json({
         success: false,
@@ -24,7 +26,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email already exists
-    const existingUser = await getUserByEmail(email);
+    console.log('🔍 Checking if email exists:', email);
+    let existingUser;
+    try {
+      existingUser = await getUserByEmail(email);
+      console.log('📧 Email check result:', existingUser ? 'exists' : 'available');
+    } catch (emailCheckError: any) {
+      console.error('❌ Email check failed:', emailCheckError);
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to check email availability',
+        details: emailCheckError.message,
+      }, { status: 500 });
+    }
+
     if (existingUser) {
       return NextResponse.json({
         success: false,
@@ -34,6 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Generate wallet ID
     const walletId = `wallet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    console.log('🆔 Generated wallet ID:', walletId);
 
     // Create user in database
     let user;
