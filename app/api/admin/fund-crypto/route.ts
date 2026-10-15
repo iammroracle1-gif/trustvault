@@ -77,12 +77,14 @@ export async function POST(request: NextRequest) {
           amount,
           crypto,
           status,
-          created_at
+          created_at,
+          approved_at
         ) VALUES (
           ${walletId},
           ${usdValue},
           ${currency},
           'approved',
+          NOW(),
           NOW()
         )
       `;

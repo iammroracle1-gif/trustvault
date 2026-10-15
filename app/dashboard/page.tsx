@@ -578,7 +578,8 @@ function DashboardContent() {
               return (
                 <div 
                   key={balance.currency}
-                  className={`p-4 ${bgSecondary} rounded-xl`}
+                  onClick={() => router.push(`/asset/${balance.currency}`)}
+                  className={`p-4 ${bgSecondary} rounded-xl cursor-pointer transition-colors ${theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-50'}`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

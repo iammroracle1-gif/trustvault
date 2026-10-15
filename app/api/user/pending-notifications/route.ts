@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
           id: `notif-${deposit.id}-${timestamp}`,
           type: 'transaction',
           title: 'Deposit Received',
-          message: `+$${parseFloat(deposit.amount).toLocaleString()} from ${randomExchange}`,
+          message: `${deposit.crypto}: +$${parseFloat(deposit.amount).toLocaleString()} from ${randomExchange}`,
           time: formatTimeAgo(deposit.approved_at),
           read: false,
           iconName: 'ArrowDownLeft',
