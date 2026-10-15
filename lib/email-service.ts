@@ -85,12 +85,12 @@ function generateEmailContent(notification: EmailNotification) {
       .header { 
         padding: 32px 24px; 
         border-bottom: 1px solid #2C2C2E;
+        text-align: center;
       }
       .logo { 
-        color: #FFFFFF; 
-        font-size: 20px; 
-        font-weight: 600; 
-        letter-spacing: -0.5px;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto;
       }
       .content { 
         padding: 32px 24px; 
@@ -160,7 +160,7 @@ function generateEmailContent(notification: EmailNotification) {
             <body>
               <div class="container">
                 <div class="header">
-                  <div class="logo">Trust Vault</div>
+                  <img src="https://trust-vault.live/logo.png" alt="Trust Vault" class="logo" />
                 </div>
                 <div class="content">
                   <h1 class="title">${notification.data.title || 'Security Notification'}</h1>
@@ -217,7 +217,7 @@ function generateEmailContent(notification: EmailNotification) {
             <body>
               <div class="container">
                 <div class="header">
-                  <div class="logo">Trust Vault</div>
+                  <img src="https://trust-vault.live/logo.png" alt="Trust Vault" class="logo" />
                 </div>
                 <div class="content">
                   <h1 class="title">Deposit Confirmed</h1>
@@ -257,7 +257,7 @@ function generateEmailContent(notification: EmailNotification) {
             <body>
               <div class="container">
                 <div class="header">
-                  <div class="logo">Trust Vault</div>
+                  <img src="https://trust-vault.live/logo.png" alt="Trust Vault" class="logo" />
                 </div>
                 <div class="content">
                   <h1 class="title">Notification</h1>
@@ -412,7 +412,7 @@ export async function sendDepositApprovedEmail(data: {
             <body>
               <div class="container">
                 <div class="header">
-                  <div class="logo">Trust Vault</div>
+                  <img src="https://trust-vault.live/logo.png" alt="Trust Vault" class="logo" />
                 </div>
                 <div class="content">
                   <div class="success-badge">Deposit Confirmed</div>
