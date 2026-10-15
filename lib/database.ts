@@ -53,9 +53,11 @@ export async function createUser(data: {
 }): Promise<DatabaseUser | null> {
   try {
     if (!(await isDatabaseAvailable())) {
-      console.log('Database not available');
+      console.error('❌ Database not available - missing POSTGRES_URL');
       return null;
     }
+
+    console.log('📝 Creating user:', { walletId: data.walletId, email: data.email });
 
     const result = await sql`
       INSERT INTO users (
@@ -84,9 +86,15 @@ export async function createUser(data: {
       RETURNING *
     `;
 
+    console.log('✅ User created successfully:', result.rows[0]);
     return result.rows[0] as DatabaseUser;
-  } catch (error) {
-    console.error('Error creating user:', error);
+  } catch (error: any) {
+    console.error('❌ Error creating user:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail
+    });
     return null;
   }
 }

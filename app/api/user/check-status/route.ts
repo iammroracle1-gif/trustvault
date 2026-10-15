@@ -18,11 +18,14 @@ export async function GET(request: NextRequest) {
     const user = await getUserByWalletId(walletId);
 
     if (!user) {
+      // User not registered in database - this is OK
+      console.log('⚠️ User not found in database:', walletId);
       return NextResponse.json({
-        success: false,
-        accountDeleted: true,
-        error: 'Account not found',
-      }, { status: 404 });
+        success: true,
+        accountDeleted: false,
+        status: 'unregistered',
+        message: 'User not registered in database yet',
+      });
     }
 
     // Check if user is deleted or suspended

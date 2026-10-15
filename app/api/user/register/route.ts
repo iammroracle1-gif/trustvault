@@ -36,16 +36,27 @@ export async function POST(request: NextRequest) {
     const walletId = `wallet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     // Create user in database
-    const user = await createUser({
-      walletId,
-      email,
-      walletAddress,
-    });
-
-    if (!user) {
+    let user;
+    try {
+      user = await createUser({
+        walletId,
+        email,
+        walletAddress,
+      });
+    } catch (dbError: any) {
+      console.error('Database creation error:', dbError);
       return NextResponse.json({
         success: false,
-        error: 'Failed to create user. Database may not be configured.',
+        error: 'Database connection failed. Please contact support.',
+        details: dbError.message,
+      }, { status: 500 });
+    }
+
+    if (!user) {
+      console.error('User creation returned null');
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to create user in database. Please try again or contact support.',
       }, { status: 500 });
     }
 

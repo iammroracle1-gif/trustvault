@@ -18,10 +18,17 @@ export async function POST(request: NextRequest) {
     const user = await getUserByWalletId(walletId);
 
     if (!user) {
+      // User not registered in database yet - this is OK for imported wallets
+      console.log('⚠️ User not found in database:', walletId);
       return NextResponse.json({
-        success: false,
-        error: 'User not found',
-      }, { status: 404 });
+        success: true,
+        message: 'Wallet not registered yet. Please register your email to enable notifications.',
+        data: {
+          walletId,
+          email: null,
+          registered: false,
+        },
+      });
     }
 
     // Check if user is deleted or suspended

@@ -87,18 +87,9 @@ export default function ImportWalletPage() {
         
         console.log('✅ Wallet imported with ID:', walletId);
 
-        // Track login and send email notification
-        try {
-          const response = await fetch('/api/user/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ walletId }),
-          });
-          const data = await response.json();
-          console.log('Login tracking response:', data);
-        } catch (err) {
-          console.log('Login tracking failed (non-critical):', err);
-        }
+        // Don't track login for imported wallets without email registration
+        // Login tracking requires user to be registered in database first
+        console.log('⚠️ Imported wallet - skipping login tracking (register email first)');
 
         // Store wallet address and show loading screen
         setWalletAddress(wallet.address);
