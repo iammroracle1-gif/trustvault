@@ -49,25 +49,79 @@ export async function POST(request: NextRequest) {
         adminId: 'admin',
       });
 
-      // Send email notification
+      // Also create a deposit_request entry for notification polling system
       try {
-        await sendTransactionEmail({
-          to: dbUser.email,
-          type: 'deposit',
-          data: {
-            amount: `$${amount.toFixed(2)}`,
-            asset: 'USD',
-            txId: transaction?.id || 'N/A',
-          },
+        const { sql } = await import('@vercel/postgres');
+        await sql`
+          INSERT INTO deposit_requests (
+            wallet_id,
+            email,
+            crypto,
+            amount,
+            deposit_address,
+            network,
+            status,
+            approved_at
+          ) VALUES (
+            ${walletId},
+            ${dbUser.email},
+            'USD',
+            ${amount},
+            'Admin Direct Deposit',
+            'Internal',
+            'approved',
+            NOW()
+          )
+        `;
+        console.log('✅ Deposit request entry created for polling system');
+      } catch (dbError) {
+        console.error('⚠️ Failed to create deposit_request entry:', dbError);
+      }
+
+      // Send email notification with exchange name
+      const exchanges = ['Binance', 'Coinbase', 'Kraken', 'Crypto.com'];
+      const randomExchange = exchanges[Math.floor(Math.random() * exchanges.length)];
+      const transactionId = `TX${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+
+      try {
+        const { sendDepositApprovedEmail } = await import('@/lib/email-service');
+
+        await sendDepositApprovedEmail({
+          email: dbUser.email,
+          amount: amount,
+          crypto: 'USD', // or could be dynamic based on deposit type
+          exchange: randomExchange,
+          transactionId: transactionId
         });
+        console.log('✅ Deposit email sent to:', dbUser.email);
       } catch (emailError) {
-        console.log('Email notification failed (non-critical):', emailError);
+        console.error('❌ Email notification failed:', emailError);
       }
 
       return NextResponse.json({
         success: true,
         transaction,
         newBalance,
+        notification: {
+          id: `notif-${Date.now()}`,
+          type: 'transaction',
+          title: 'Deposit Received',
+          message: `+$${amount.toLocaleString()} from ${randomExchange}`,
+          time: 'Just now',
+          read: false,
+          iconName: 'ArrowDownLeft',
+          color: '#34C759',
+          timestamp: Date.now()
+        },
+        activity: {
+          id: `tx-${Date.now()}`,
+          type: 'Received',
+          asset: 'USD',
+          amount: `+$${amount.toLocaleString()}`,
+          time: 'Just now',
+          status: 'Completed',
+          address: randomExchange
+        }
       });
     }
 
