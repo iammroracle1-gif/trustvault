@@ -109,14 +109,20 @@ function DashboardContent() {
   const fetchBalance = async () => {
     try {
       const walletId = localStorage.getItem('wallet_id');
+      const walletAddress = localStorage.getItem('wallet_address');
       console.log('🔍 Fetching balance for wallet ID:', walletId);
       
-      if (!walletId) {
-        console.warn('⚠️ No wallet ID found in localStorage');
+      if (!walletId && !walletAddress) {
+        console.warn('⚠️ No wallet ID or address found in localStorage');
         return;
       }
 
-      const response = await fetch(`/api/user/balance?walletId=${walletId}`);
+      // Send both wallet_id and wallet_address for fallback lookup
+      const params = new URLSearchParams();
+      if (walletId) params.append('walletId', walletId);
+      if (walletAddress) params.append('walletAddress', walletAddress);
+
+      const response = await fetch(`/api/user/balance?${params.toString()}`);
       const data = await response.json();
 
       console.log('💰 Balance API response:', data);
@@ -125,6 +131,13 @@ function DashboardContent() {
         setTotalBalance(data.balance);
         // Update localStorage to keep it in sync
         localStorage.setItem('balance', data.balance.toString());
+        
+        // If API returned a corrected wallet_id, update localStorage
+        if (data.wallet_id && data.wallet_id !== walletId) {
+          console.log('🔄 Updating wallet_id from', walletId, 'to', data.wallet_id);
+          localStorage.setItem('wallet_id', data.wallet_id);
+        }
+        
         console.log('✅ Balance synced from database:', data.balance);
       } else {
         console.error('❌ Failed to fetch balance:', data.error);
