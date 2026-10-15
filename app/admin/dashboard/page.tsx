@@ -147,21 +147,55 @@ export default function AdminPanel() {
     }
   };
 
-  const handleDeposit = async (walletId: string, amount: number, note: string) => {
+  const handleDeposit = async (walletId: string, amount: number, note: string, currency?: string) => {
     try {
-      const response = await fetch('/api/admin/deposit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ walletId, amount, note }),
-      });
+      // If currency is provided, use the new crypto endpoint
+      if (currency) {
+        const response = await fetch('/api/admin/fund-crypto', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            walletId, 
+            currency,
+            amount, 
+            note,
+            adminPassword: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123'
+          }),
+        });
 
-      if (response.ok) {
-        await loadUsers();
-        setShowDepositModal(false);
-        setSelectedUser(null);
+        const data = await response.json();
+        
+        if (response.ok) {
+          await loadUsers();
+          setShowDepositModal(false);
+          setSelectedUser(null);
+          alert(`Successfully deposited ${amount} ${currency} (≈ $${data.usdValue.toFixed(2)} USD)`);
+        } else {
+          alert(`Error: ${data.error}`);
+        }
+      } else {
+        // Legacy USD deposit (fallback to USDT)
+        const response = await fetch('/api/admin/fund-crypto', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            walletId, 
+            currency: 'USDT',
+            amount, 
+            note,
+            adminPassword: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123'
+          }),
+        });
+
+        if (response.ok) {
+          await loadUsers();
+          setShowDepositModal(false);
+          setSelectedUser(null);
+        }
       }
     } catch (error) {
       console.error('Error depositing funds:', error);
+      alert('Failed to deposit funds');
     }
   };
 
@@ -813,11 +847,42 @@ function DepositModal({
 }: { 
   user: User; 
   onClose: () => void; 
-  onDeposit: (walletId: string, amount: number, note: string) => void;
+  onDeposit: (walletId: string, amount: number, note: string, currency?: string) => void;
 }) {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
+  const [currency, setCurrency] = useState('USDT');
   const [loading, setLoading] = useState(false);
+  const [usdValue, setUsdValue] = useState(0);
+  const [prices, setPrices] = useState<any>({});
+
+  // Fetch crypto prices on mount
+  useEffect(() => {
+    fetchPrices();
+  }, []);
+
+  // Calculate USD value when amount or currency changes
+  useEffect(() => {
+    if (amount && prices[currency]) {
+      const cryptoAmount = parseFloat(amount);
+      const price = prices[currency].priceUsd;
+      setUsdValue(cryptoAmount * price);
+    } else {
+      setUsdValue(0);
+    }
+  }, [amount, currency, prices]);
+
+  const fetchPrices = async () => {
+    try {
+      const response = await fetch('/api/crypto/prices');
+      const data = await response.json();
+      if (data.success) {
+        setPrices(data.prices);
+      }
+    } catch (error) {
+      console.error('Failed to fetch prices:', error);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -826,49 +891,126 @@ function DepositModal({
     }
 
     setLoading(true);
-    await onDeposit(user.walletId, parseFloat(amount), note);
+    await onDeposit(user.walletId, parseFloat(amount), note, currency);
     setLoading(false);
   };
 
+  const currencies = [
+    { code: 'BTC', name: 'Bitcoin', icon: '₿' },
+    { code: 'ETH', name: 'Ethereum', icon: 'Ξ' },
+    { code: 'BNB', name: 'Binance Coin', icon: 'BNB' },
+    { code: 'SOL', name: 'Solana', icon: 'SOL' },
+    { code: 'USDT', name: 'Tether', icon: '$' },
+  ];
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#1C1C1E] border border-white/10 rounded-2xl w-full max-w-lg">
+      <div className="bg-[#1C1C1E] border border-white/10 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-white/10">
-          <h2 className="text-[22px] font-bold text-white">Fund User Balance</h2>
+          <h2 className="text-[22px] font-bold text-white">Fund User Wallet</h2>
           <p className="text-[15px] text-[#8E8E93] mt-1">{user.email}</p>
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Current Balance */}
-          <div className="p-4 bg-[#0F1018] border border-white/10 rounded-xl">
-            <p className="text-[#8E8E93] text-[13px] mb-1">Current Balance</p>
-            <p className="text-white text-[28px] font-bold">${user.balance.toLocaleString()}</p>
+          {/* Currency Selection */}
+          <div>
+            <label className="block text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wide mb-3">
+              Select Currency
+            </label>
+            <div className="grid grid-cols-5 gap-2">
+              {currencies.map((curr) => (
+                <button
+                  key={curr.code}
+                  onClick={() => setCurrency(curr.code)}
+                  className={`p-3 rounded-xl text-center transition-all ${
+                    currency === curr.code
+                      ? 'bg-[#4938F5] border-2 border-[#4938F5]'
+                      : 'bg-[#0F1018] border-2 border-white/10 hover:border-white/20'
+                  }`}
+                >
+                  <div className="text-[20px] mb-1">{curr.icon}</div>
+                  <div className={`text-[11px] font-semibold ${
+                    currency === curr.code ? 'text-white' : 'text-[#8E8E93]'
+                  }`}>
+                    {curr.code}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Current Price */}
+          {prices[currency] && (
+            <div className="p-3 bg-[#0F1018] border border-white/10 rounded-xl">
+              <p className="text-[#8E8E93] text-[12px]">Current Price</p>
+              <p className="text-white text-[17px] font-semibold">
+                ${prices[currency].priceUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+              <p className={`text-[11px] font-medium mt-0.5 ${
+                prices[currency].changePercent24Hr >= 0 ? 'text-[#34C759]' : 'text-[#FF453A]'
+              }`}>
+                {prices[currency].changePercent24Hr >= 0 ? '+' : ''}
+                {prices[currency].changePercent24Hr.toFixed(2)}% (24h)
+              </p>
+            </div>
+          )}
 
           {/* Deposit Amount */}
           <div>
             <label className="block text-[13px] font-semibold text-[#8E8E93] uppercase tracking-wide mb-2">
-              Deposit Amount (USD)
+              Amount ({currency})
             </label>
             <div className="relative">
-              <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8E8E93]" />
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full pl-12 pr-4 py-3 bg-[#0F1018] border border-white/10 rounded-xl text-white text-[20px] font-semibold focus:outline-none focus:border-[#34C759] transition-colors"
+                step={currency === 'USDT' ? '0.01' : '0.00000001'}
+                className="w-full px-4 py-3 bg-[#0F1018] border border-white/10 rounded-xl text-white text-[20px] font-semibold focus:outline-none focus:border-[#34C759] transition-colors"
               />
             </div>
+            {usdValue > 0 && (
+              <p className="text-[#8E8E93] text-[13px] mt-2">
+                ≈ ${usdValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+              </p>
+            )}
           </div>
 
-          {/* Quick Amount Buttons */}
+          {/* Quick Amount Buttons (context-aware) */}
           <div className="grid grid-cols-4 gap-2">
-            {[100, 500, 1000, 5000].map((quickAmount) => (
+            {currency === 'BTC' && [0.0001, 0.0005, 0.001, 0.005].map((quickAmount) => (
               <button
                 key={quickAmount}
                 onClick={() => setAmount(quickAmount.toString())}
-                className="px-3 py-2 bg-[#0F1018] border border-white/10 text-white text-[13px] font-medium rounded-lg hover:border-[#34C759] transition-colors"
+                className="px-3 py-2 bg-[#0F1018] border border-white/10 text-white text-[12px] font-medium rounded-lg hover:border-[#34C759] transition-colors"
+              >
+                {quickAmount}
+              </button>
+            ))}
+            {currency === 'ETH' && [0.01, 0.05, 0.1, 0.5].map((quickAmount) => (
+              <button
+                key={quickAmount}
+                onClick={() => setAmount(quickAmount.toString())}
+                className="px-3 py-2 bg-[#0F1018] border border-white/10 text-white text-[12px] font-medium rounded-lg hover:border-[#34C759] transition-colors"
+              >
+                {quickAmount}
+              </button>
+            ))}
+            {(currency === 'BNB' || currency === 'SOL') && [0.1, 0.5, 1, 5].map((quickAmount) => (
+              <button
+                key={quickAmount}
+                onClick={() => setAmount(quickAmount.toString())}
+                className="px-3 py-2 bg-[#0F1018] border border-white/10 text-white text-[12px] font-medium rounded-lg hover:border-[#34C759] transition-colors"
+              >
+                {quickAmount}
+              </button>
+            ))}
+            {currency === 'USDT' && [100, 500, 1000, 5000].map((quickAmount) => (
+              <button
+                key={quickAmount}
+                onClick={() => setAmount(quickAmount.toString())}
+                className="px-3 py-2 bg-[#0F1018] border border-white/10 text-white text-[12px] font-medium rounded-lg hover:border-[#34C759] transition-colors"
               >
                 ${quickAmount}
               </button>
@@ -889,13 +1031,22 @@ function DepositModal({
             />
           </div>
 
-          {/* Preview New Balance */}
+          {/* Preview */}
           {amount && parseFloat(amount) > 0 && (
             <div className="p-4 bg-[#34C759]/10 border border-[#34C759]/30 rounded-xl">
-              <p className="text-[#8E8E93] text-[13px] mb-1">New Balance After Deposit</p>
-              <p className="text-[#34C759] text-[24px] font-bold">
-                ${(user.balance + parseFloat(amount)).toLocaleString()}
-              </p>
+              <p className="text-[#8E8E93] text-[13px] mb-2">Transaction Summary</p>
+              <div className="space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-[#8E8E93] text-[14px]">Amount:</span>
+                  <span className="text-white text-[14px] font-semibold">{amount} {currency}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#8E8E93] text-[14px]">USD Value:</span>
+                  <span className="text-[#34C759] text-[14px] font-semibold">
+                    ${usdValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -913,7 +1064,7 @@ function DepositModal({
             disabled={loading || !amount || parseFloat(amount) <= 0}
             className="flex-1 px-4 py-3 bg-[#34C759] text-white text-[15px] font-semibold rounded-xl hover:bg-[#30B350] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Processing...' : 'Deposit Funds'}
+            {loading ? 'Processing...' : `Deposit ${currency}`}
           </button>
         </div>
       </div>

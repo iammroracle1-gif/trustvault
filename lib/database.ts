@@ -27,6 +27,17 @@ export interface DatabaseTransaction {
   new_balance: number;
   created_at: string;
   admin_id?: string;
+  currency?: string;
+  crypto_amount?: number;
+}
+
+export interface CryptoBalance {
+  id: number;
+  wallet_id: string;
+  currency: string;
+  amount: number;
+  created_at: string;
+  updated_at: string;
 }
 
 // Check if database is available
@@ -342,5 +353,229 @@ export async function getAllTransactions(): Promise<DatabaseTransaction[]> {
   } catch (error) {
     console.error('Error getting all transactions:', error);
     return [];
+  }
+}
+
+
+// ============================================
+// CRYPTO BALANCE FUNCTIONS
+// ============================================
+
+// Get user's crypto balances
+export async function getCryptoBalances(walletId: string): Promise<CryptoBalance[]> {
+  try {
+    if (!(await isDatabaseAvailable())) {
+      return [];
+    }
+
+    const result = await sql`
+      SELECT * FROM crypto_balances 
+      WHERE wallet_id = ${walletId}
+      ORDER BY currency ASC
+    `;
+
+    return result.rows as CryptoBalance[];
+  } catch (error) {
+    console.error('Error getting crypto balances:', error);
+    return [];
+  }
+}
+
+// Get user's balance for a specific currency
+export async function getCryptoBalance(walletId: string, currency: string): Promise<number> {
+  try {
+    if (!(await isDatabaseAvailable())) {
+      return 0;
+    }
+
+    const result = await sql`
+      SELECT amount FROM crypto_balances 
+      WHERE wallet_id = ${walletId} AND currency = ${currency}
+    `;
+
+    return result.rows[0]?.amount || 0;
+  } catch (error) {
+    console.error('Error getting crypto balance:', error);
+    return 0;
+  }
+}
+
+// Update or create crypto balance
+export async function updateCryptoBalance(
+  walletId: string,
+  currency: string,
+  amount: number
+): Promise<CryptoBalance | null> {
+  try {
+    if (!(await isDatabaseAvailable())) {
+      return null;
+    }
+
+    // Upsert: Update if exists, insert if doesn't
+    const result = await sql`
+      INSERT INTO crypto_balances (wallet_id, currency, amount, created_at, updated_at)
+      VALUES (${walletId}, ${currency}, ${amount}, NOW(), NOW())
+      ON CONFLICT (wallet_id, currency) 
+      DO UPDATE SET 
+        amount = ${amount},
+        updated_at = NOW()
+      RETURNING *
+    `;
+
+    return result.rows[0] as CryptoBalance;
+  } catch (error) {
+    console.error('Error updating crypto balance:', error);
+    return null;
+  }
+}
+
+// Add to crypto balance (for deposits)
+export async function addToCryptoBalance(
+  walletId: string,
+  currency: string,
+  amount: number
+): Promise<CryptoBalance | null> {
+  try {
+    if (!(await isDatabaseAvailable())) {
+      return null;
+    }
+
+    const result = await sql`
+      INSERT INTO crypto_balances (wallet_id, currency, amount, created_at, updated_at)
+      VALUES (${walletId}, ${currency}, ${amount}, NOW(), NOW())
+      ON CONFLICT (wallet_id, currency) 
+      DO UPDATE SET 
+        amount = crypto_balances.amount + ${amount},
+        updated_at = NOW()
+      RETURNING *
+    `;
+
+    return result.rows[0] as CryptoBalance;
+  } catch (error) {
+    console.error('Error adding to crypto balance:', error);
+    return null;
+  }
+}
+
+// Subtract from crypto balance (for withdrawals)
+export async function subtractFromCryptoBalance(
+  walletId: string,
+  currency: string,
+  amount: number
+): Promise<CryptoBalance | null> {
+  try {
+    if (!(await isDatabaseAvailable())) {
+      return null;
+    }
+
+    // Check if user has enough balance
+    const currentBalance = await getCryptoBalance(walletId, currency);
+    if (currentBalance < amount) {
+      throw new Error('Insufficient balance');
+    }
+
+    const result = await sql`
+      UPDATE crypto_balances 
+      SET amount = amount - ${amount}, updated_at = NOW()
+      WHERE wallet_id = ${walletId} AND currency = ${currency}
+      RETURNING *
+    `;
+
+    return result.rows[0] as CryptoBalance;
+  } catch (error) {
+    console.error('Error subtracting from crypto balance:', error);
+    return null;
+  }
+}
+
+// Add crypto transaction
+export async function addCryptoTransaction(data: {
+  userId: string;
+  type: string;
+  currency: string;
+  cryptoAmount: number;
+  usdAmount: number;
+  note?: string;
+  adminId?: string;
+}): Promise<DatabaseTransaction | null> {
+  try {
+    if (!(await isDatabaseAvailable())) {
+      return null;
+    }
+
+    const txId = `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    const result = await sql`
+      INSERT INTO transactions (
+        id,
+        user_id,
+        type,
+        amount,
+        currency,
+        crypto_amount,
+        note,
+        old_balance,
+        new_balance,
+        created_at,
+        admin_id
+      ) VALUES (
+        ${txId},
+        ${data.userId},
+        ${data.type},
+        ${data.usdAmount},
+        ${data.currency},
+        ${data.cryptoAmount},
+        ${data.note || ''},
+        0,
+        0,
+        NOW(),
+        ${data.adminId || ''}
+      )
+      RETURNING *
+    `;
+
+    // Update user's transaction count
+    await sql`
+      UPDATE users 
+      SET total_transactions = total_transactions + 1,
+          last_activity = NOW()
+      WHERE wallet_id = ${data.userId}
+    `;
+
+    return result.rows[0] as DatabaseTransaction;
+  } catch (error) {
+    console.error('Error adding crypto transaction:', error);
+    return null;
+  }
+}
+
+// Migrate user's USD balance to USDT (one-time migration)
+export async function migrateUserToMultiCurrency(walletId: string): Promise<boolean> {
+  try {
+    if (!(await isDatabaseAvailable())) {
+      return false;
+    }
+
+    // Get user's current USD balance
+    const user = await getUserByWalletId(walletId);
+    if (!user || user.balance <= 0) {
+      return true; // Nothing to migrate
+    }
+
+    // Convert USD to USDT (1:1)
+    await addToCryptoBalance(walletId, 'USDT', user.balance);
+
+    // Mark as migrated
+    await sql`
+      UPDATE users 
+      SET migrated_to_crypto = TRUE
+      WHERE wallet_id = ${walletId}
+    `;
+
+    console.log(`✅ Migrated ${user.email}: $${user.balance} USD → ${user.balance} USDT`);
+    return true;
+  } catch (error) {
+    console.error('Error migrating user:', error);
+    return false;
   }
 }
