@@ -72,9 +72,16 @@ export async function POST(request: NextRequest) {
     try {
       const { sql } = await import('@vercel/postgres');
       
+      console.log('💾 Attempting to insert notification:', {
+        walletId,
+        amount: usdValue,
+        crypto: currency,
+        timestamp: new Date().toISOString()
+      });
+      
       // First, try to insert with approved_at
       try {
-        await sql`
+        const result = await sql`
           INSERT INTO deposit_requests (
             wallet_id,
             amount,
@@ -90,13 +97,20 @@ export async function POST(request: NextRequest) {
             NOW(),
             NOW()
           )
+          RETURNING id, approved_at
         `;
-        console.log(`✅ Created in-app notification for ${currency} deposit with approved_at`);
+        console.log(`✅ Created in-app notification for ${currency} deposit:`, {
+          notificationId: result.rows[0]?.id,
+          approvedAt: result.rows[0]?.approved_at,
+          walletId,
+          currency,
+          usdValue
+        });
       } catch (insertError: any) {
         // If approved_at column doesn't exist, try without it
         if (insertError.message?.includes('approved_at')) {
           console.log('⚠️ approved_at column missing, trying without it...');
-          await sql`
+          const result = await sql`
             INSERT INTO deposit_requests (
               wallet_id,
               amount,
@@ -110,14 +124,21 @@ export async function POST(request: NextRequest) {
               'approved',
               NOW()
             )
+            RETURNING id, created_at
           `;
-          console.log(`✅ Created in-app notification for ${currency} deposit (no approved_at)`);
+          console.log(`✅ Created in-app notification for ${currency} deposit (no approved_at):`, {
+            notificationId: result.rows[0]?.id,
+            createdAt: result.rows[0]?.created_at,
+            walletId,
+            currency,
+            usdValue
+          });
         } else {
           throw insertError;
         }
       }
     } catch (notifError) {
-      console.error('Failed to create notification entry:', notifError);
+      console.error('❌ Failed to create notification entry:', notifError);
       // Don't fail the request if notification fails
     }
 
