@@ -127,10 +127,12 @@ function DashboardContent() {
 
       console.log('💰 Balance API response:', data);
 
-      if (data.success && typeof data.balance === 'number') {
-        setTotalBalance(data.balance);
+      if (data.success && (typeof data.balance === 'number' || typeof data.balance === 'string')) {
+        // Parse balance if it's a string
+        const balance = typeof data.balance === 'string' ? parseFloat(data.balance) : data.balance;
+        setTotalBalance(balance);
         // Update localStorage to keep it in sync
-        localStorage.setItem('balance', data.balance.toString());
+        localStorage.setItem('balance', balance.toString());
         
         // If API returned a corrected wallet_id, update localStorage
         if (data.wallet_id && data.wallet_id !== walletId) {
@@ -138,7 +140,7 @@ function DashboardContent() {
           localStorage.setItem('wallet_id', data.wallet_id);
         }
         
-        console.log('✅ Balance synced from database:', data.balance);
+        console.log('✅ Balance synced from database:', balance);
       } else {
         console.error('❌ Failed to fetch balance:', data.error);
       }

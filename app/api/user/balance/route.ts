@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      balance: user.balance || 0,
+      balance: parseFloat(user.balance) || 0,
       currency: 'USD',
       status: user.status,
       withdrawalRestricted: user.withdrawal_restricted || false,
