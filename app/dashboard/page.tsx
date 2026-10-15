@@ -54,6 +54,10 @@ function DashboardContent() {
   const [recentActivity, setRecentActivity] = useState<Transaction[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [totalBtc, setTotalBtc] = useState(0);
+  const [displayCurrency, setDisplayCurrency] = useState('BTC');
+  const [cryptoBalances, setCryptoBalances] = useState<any[]>([]);
+  const [cryptoPrices, setCryptoPrices] = useState<any>({});
   const [showAccountDeleted, setShowAccountDeleted] = useState(false);
   const [wallets, setWallets] = useState<Wallet[]>([
     {
@@ -105,44 +109,45 @@ function DashboardContent() {
     }
   };
 
-  // Fetch balance from database
+  // Fetch balance from database - NEW MULTI-CURRENCY VERSION
   const fetchBalance = async () => {
     try {
       const walletId = localStorage.getItem('wallet_id');
       const walletAddress = localStorage.getItem('wallet_address');
-      console.log('🔍 Fetching balance for wallet ID:', walletId);
+      console.log('🔍 Fetching crypto balances for wallet ID:', walletId);
       
       if (!walletId && !walletAddress) {
         console.warn('⚠️ No wallet ID or address found in localStorage');
         return;
       }
 
-      // Send both wallet_id and wallet_address for fallback lookup
+      // Fetch multi-currency balances
       const params = new URLSearchParams();
       if (walletId) params.append('walletId', walletId);
-      if (walletAddress) params.append('walletAddress', walletAddress);
+      if (walletAddress) params.append('wallet_address', walletAddress);
 
-      const response = await fetch(`/api/user/balance?${params.toString()}`);
+      const response = await fetch(`/api/user/crypto-balances?${params.toString()}`);
       const data = await response.json();
 
-      console.log('💰 Balance API response:', data);
+      console.log('💰 Crypto Balances API response:', data);
 
-      if (data.success && (typeof data.balance === 'number' || typeof data.balance === 'string')) {
-        // Parse balance if it's a string
-        const balance = typeof data.balance === 'string' ? parseFloat(data.balance) : data.balance;
-        setTotalBalance(balance);
-        // Update localStorage to keep it in sync
-        localStorage.setItem('balance', balance.toString());
+      if (data.success) {
+        // Update crypto balances
+        setCryptoBalances(data.balances || []);
+        setCryptoPrices(data.prices || {});
+        setTotalBalance(data.totalUsd || 0);
+        setTotalBtc(data.totalBtc || 0);
         
-        // If API returned a corrected wallet_id, update localStorage
-        if (data.wallet_id && data.wallet_id !== walletId) {
-          console.log('🔄 Updating wallet_id from', walletId, 'to', data.wallet_id);
-          localStorage.setItem('wallet_id', data.wallet_id);
-        }
+        // Update localStorage
+        localStorage.setItem('balance', (data.totalUsd || 0).toString());
         
-        console.log('✅ Balance synced from database:', balance);
+        console.log('✅ Multi-currency balances synced:', {
+          totalUsd: data.totalUsd,
+          totalBtc: data.totalBtc,
+          cryptoCount: data.balances?.length || 0
+        });
       } else {
-        console.error('❌ Failed to fetch balance:', data.error);
+        console.error('❌ Failed to fetch crypto balances:', data.error);
       }
     } catch (error) {
       console.error('❌ Balance fetch error:', error);
@@ -511,15 +516,50 @@ function DashboardContent() {
 
         {/* Total Balance */}
         <div className="text-center py-8">
-          <p className={`text-xs ${textSecondary} mb-3`}>Total Balance</p>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <p className={`text-xs ${textSecondary}`}>Total Balance</p>
+            <select
+              value={displayCurrency}
+              onChange={(e) => setDisplayCurrency(e.target.value)}
+              className={`text-xs ${textSecondary} ${bgSecondary} border ${borderColor} rounded px-2 py-1 cursor-pointer`}
+            >
+              <option value="BTC">BTC</option>
+              <option value="ETH">ETH</option>
+              <option value="BNB">BNB</option>
+              <option value="SOL">SOL</option>
+              <option value="USDT">USDT</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
           {loading ? (
             <div className="animate-pulse">
               <div className={`h-12 w-56 ${theme === 'dark' ? 'bg-[#202437]' : 'bg-gray-200'} rounded mx-auto mb-2`} />
             </div>
           ) : (
-            <h1 className={`text-4xl font-bold ${textPrimary} mb-2`}>
-              ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </h1>
+            <>
+              <h1 className={`text-4xl font-bold ${textPrimary} mb-2`}>
+                {displayCurrency === 'USD' ? (
+                  `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                ) : displayCurrency === 'BTC' ? (
+                  `${totalBtc.toFixed(8).replace(/\.?0+$/, '')} BTC`
+                ) : displayCurrency === 'ETH' && cryptoPrices.ETH ? (
+                  `${(totalBalance / cryptoPrices.ETH.priceUsd).toFixed(8).replace(/\.?0+$/, '')} ETH`
+                ) : displayCurrency === 'BNB' && cryptoPrices.BNB ? (
+                  `${(totalBalance / cryptoPrices.BNB.priceUsd).toFixed(8).replace(/\.?0+$/, '')} BNB`
+                ) : displayCurrency === 'SOL' && cryptoPrices.SOL ? (
+                  `${(totalBalance / cryptoPrices.SOL.priceUsd).toFixed(8).replace(/\.?0+$/, '')} SOL`
+                ) : displayCurrency === 'USDT' ? (
+                  `${totalBalance.toFixed(2)} USDT`
+                ) : (
+                  `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                )}
+              </h1>
+              {displayCurrency !== 'USD' && (
+                <p className={`text-sm ${textSecondary}`}>
+                  ≈ ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+                </p>
+              )}
+            </>
           )}
         </div>
 
@@ -544,6 +584,74 @@ function DashboardContent() {
 
       {/* Restriction Warning - Real-time */}
       <RestrictionWarning />
+
+      {/* Crypto Holdings Section */}
+      {cryptoBalances.length > 0 && (
+        <div className="px-6 py-6 border-b ${borderColor}">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className={`text-lg font-semibold ${textPrimary}`}>Accounts</h2>
+          </div>
+
+          <div className="space-y-2">
+            {cryptoBalances.map((balance) => {
+              const cryptoIcons: Record<string, string> = {
+                BTC: '₿',
+                ETH: 'Ξ',
+                BNB: 'BNB',
+                SOL: 'SOL',
+                USDT: '$'
+              };
+              
+              const cryptoNames: Record<string, string> = {
+                BTC: 'Bitcoin',
+                ETH: 'Ethereum',
+                BNB: 'Binance Coin',
+                SOL: 'Solana',
+                USDT: 'Tether'
+              };
+
+              return (
+                <div 
+                  key={balance.currency}
+                  className={`p-4 ${bgSecondary} rounded-xl`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#4938F5]/20 flex items-center justify-center">
+                        <span className="text-[#4938F5] font-bold text-[15px]">
+                          {cryptoIcons[balance.currency] || balance.currency[0]}
+                        </span>
+                      </div>
+                      <div>
+                        <p className={`font-semibold ${textPrimary} text-[15px]`}>
+                          {cryptoNames[balance.currency] || balance.currency}
+                        </p>
+                        <p className={`text-[13px] ${textSecondary}`}>
+                          {balance.currency}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className={`font-semibold ${textPrimary} text-[15px]`}>
+                        {balance.currency === 'USDT' 
+                          ? balance.amount.toFixed(2)
+                          : balance.amount.toFixed(8).replace(/\.?0+$/, '')
+                        } {balance.currency}
+                      </p>
+                      <p className={`text-[13px] ${textSecondary}`}>
+                        ≈ ${balance.usdValue.toLocaleString('en-US', { 
+                          minimumFractionDigits: 2, 
+                          maximumFractionDigits: 2 
+                        })} USD
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Markets Section - Live Prices */}
       <div className="px-6 py-6">
