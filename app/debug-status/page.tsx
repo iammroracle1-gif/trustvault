@@ -6,8 +6,10 @@ export default function DebugStatusPage() {
   const [walletId, setWalletId] = useState<string>("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const id = localStorage.getItem('wallet_id');
     if (id) {
       setWalletId(id);
@@ -51,6 +53,14 @@ export default function DebugStatusPage() {
     setLoading(false);
   };
 
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#0F1018] flex items-center justify-center">
+        <p className="text-white">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0F1018] p-6">
       <div className="max-w-4xl mx-auto">
@@ -62,15 +72,15 @@ export default function DebugStatusPage() {
           <div className="space-y-2 text-sm">
             <div>
               <span className="text-[#8E8E93]">wallet_id:</span>
-              <span className="text-white ml-2">{localStorage.getItem('wallet_id') || 'null'}</span>
+              <span className="text-white ml-2">{typeof window !== 'undefined' && localStorage.getItem('wallet_id') || 'null'}</span>
             </div>
             <div>
               <span className="text-[#8E8E93]">wallet_address:</span>
-              <span className="text-white ml-2">{localStorage.getItem('wallet_address') || 'null'}</span>
+              <span className="text-white ml-2">{typeof window !== 'undefined' && localStorage.getItem('wallet_address') || 'null'}</span>
             </div>
             <div>
               <span className="text-[#8E8E93]">wallet_email:</span>
-              <span className="text-white ml-2">{localStorage.getItem('wallet_email') || 'null'}</span>
+              <span className="text-white ml-2">{typeof window !== 'undefined' && localStorage.getItem('wallet_email') || 'null'}</span>
             </div>
           </div>
         </div>
