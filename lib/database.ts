@@ -93,8 +93,15 @@ export async function createUser(data: {
     console.error('Error details:', {
       message: error.message,
       code: error.code,
-      detail: error.detail
+      detail: error.detail,
+      constraint: error.constraint
     });
+    
+    // Check if it's a duplicate key error
+    if (error.code === '23505') {
+      console.error('🔴 DUPLICATE KEY ERROR - Email or wallet_id already exists');
+    }
+    
     return null;
   }
 }
@@ -117,7 +124,7 @@ export async function getUserByWalletId(walletId: string): Promise<DatabaseUser 
   }
 }
 
-// Get user by email (exclude deleted users)
+// Get user by email
 export async function getUserByEmail(email: string): Promise<DatabaseUser | null> {
   try {
     if (!(await isDatabaseAvailable())) {
@@ -126,8 +133,7 @@ export async function getUserByEmail(email: string): Promise<DatabaseUser | null
 
     const result = await sql`
       SELECT * FROM users 
-      WHERE email = ${email} 
-        AND status != 'deleted'
+      WHERE email = ${email}
     `;
 
     return result.rows[0] as DatabaseUser || null;
@@ -137,16 +143,17 @@ export async function getUserByEmail(email: string): Promise<DatabaseUser | null
   }
 }
 
-// Get all users (for admin panel) - excludes deleted users by default
-export async function getAllUsers(includeDeleted: boolean = false): Promise<DatabaseUser[]> {
+// Get all users (for admin panel)
+export async function getAllUsers(): Promise<DatabaseUser[]> {
   try {
     if (!(await isDatabaseAvailable())) {
       return [];
     }
 
-    const result = includeDeleted 
-      ? await sql`SELECT * FROM users ORDER BY created_at DESC`
-      : await sql`SELECT * FROM users WHERE status != 'deleted' ORDER BY created_at DESC`;
+    const result = await sql`
+      SELECT * FROM users 
+      ORDER BY created_at DESC
+    `;
 
     return result.rows as DatabaseUser[];
   } catch (error) {
@@ -202,22 +209,32 @@ export async function updateLastLogin(walletId: string): Promise<void> {
   }
 }
 
-// Delete user (mark as deleted, don't permanently remove)
+// Delete user permanently from database
 export async function deleteUser(walletId: string): Promise<boolean> {
   try {
     if (!(await isDatabaseAvailable())) {
       return false;
     }
 
-    // Mark user as deleted instead of permanently removing
-    // This prevents deleted users from logging in via passphrase
+    // Delete user's deposit requests first (foreign key)
     await sql`
-      UPDATE users 
-      SET status = 'deleted',
-          last_activity = NOW()
+      DELETE FROM deposit_requests 
       WHERE wallet_id = ${walletId}
     `;
 
+    // Delete user's transactions (foreign key)
+    await sql`
+      DELETE FROM transactions 
+      WHERE user_id = ${walletId}
+    `;
+
+    // Delete user permanently
+    await sql`
+      DELETE FROM users 
+      WHERE wallet_id = ${walletId}
+    `;
+
+    console.log('✅ User permanently deleted:', walletId);
     return true;
   } catch (error) {
     console.error('Error deleting user:', error);
