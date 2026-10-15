@@ -523,10 +523,13 @@ function DashboardContent() {
             </div>
           ) : (
             <>
-              <h1 className={`text-4xl font-bold ${textPrimary} mb-2`}>
-                {totalBtc.toFixed(8).replace(/\.?0+$/, '')} BTC
-              </h1>
-              <p className={`text-sm ${textSecondary}`}>
+              <div className="flex items-baseline justify-center gap-2">
+                <h1 className={`text-4xl font-bold ${textPrimary}`}>
+                  {totalBtc.toFixed(8).replace(/\.?0+$/, '')}
+                </h1>
+                <span className={`text-base ${textSecondary} font-medium`}>BTC</span>
+              </div>
+              <p className={`text-sm ${textSecondary} mt-2`}>
                 ≈ ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
               </p>
             </>
