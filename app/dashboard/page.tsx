@@ -69,14 +69,23 @@ function DashboardContent() {
   const checkAccountStatus = async () => {
     try {
       const walletId = localStorage.getItem('wallet_id');
-      if (!walletId) return;
+      if (!walletId) {
+        console.log('⚠️ No wallet ID for status check');
+        return;
+      }
 
+      console.log('🔍 Checking account status for wallet:', walletId);
+      
       const response = await fetch(`/api/user/check-status?walletId=${walletId}`);
       const data = await response.json();
 
+      console.log('📊 Status check response:', data);
+
       if (data.accountDeleted || data.status === 'deleted' || data.status === 'suspended') {
-        console.log('🚫 Account has been deleted/suspended');
+        console.error('🚫 ACCOUNT DELETED/SUSPENDED - SHOWING MODAL');
         setShowAccountDeleted(true);
+      } else {
+        console.log('✅ Account is active');
       }
     } catch (error) {
       console.error('❌ Failed to check account status:', error);
@@ -451,6 +460,16 @@ function DashboardContent() {
             </div>
           </button>
           <div className="flex gap-2">
+            {/* DEBUG: Test modal button - REMOVE AFTER TESTING */}
+            <button 
+              onClick={() => {
+                console.log('🧪 Test: Showing account deleted modal');
+                setShowAccountDeleted(true);
+              }}
+              className="px-2 py-1 bg-red-500/20 text-red-500 text-xs rounded"
+            >
+              Test
+            </button>
             <button 
               onClick={() => router.push("/notifications")}
               className={`p-2 ${theme === 'dark' ? 'hover:bg-[#202437]' : 'hover:bg-gray-100'} rounded-lg transition-colors relative`}
