@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       const result = await sql`
         SELECT * FROM users WHERE wallet_address = ${walletAddress}
       `;
-      user = result.rows[0];
+      user = result.rows[0] as any;
     }
 
     if (!user) {
