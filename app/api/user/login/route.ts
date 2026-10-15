@@ -35,9 +35,15 @@ export async function POST(request: NextRequest) {
     // Update last login time
     await updateLastLogin(walletId);
 
-    // Send login notification email
+    // Send login notification email with device info
     try {
+      // Get device/browser info from headers
+      const userAgent = request.headers.get('user-agent') || 'Unknown device';
+      const deviceInfo = parseUserAgent(userAgent);
+      
       console.log('📧 Sending login notification email to:', user.email);
+      console.log('📱 Device info:', deviceInfo);
+      
       await sendTransactionEmail({
         to: user.email,
         type: 'security',
@@ -50,9 +56,10 @@ export async function POST(request: NextRequest) {
             hour: 'numeric',
             minute: '2-digit',
             hour12: true
-          })}.`,
+          })}.\n\nDevice: ${deviceInfo.device}\nBrowser: ${deviceInfo.browser}\nOS: ${deviceInfo.os}`,
           walletAddress: user.wallet_address,
           loginTime: new Date().toISOString(),
+          deviceInfo: `${deviceInfo.browser} on ${deviceInfo.os}`,
         },
       });
       console.log('✅ Login email sent successfully to:', user.email);
@@ -75,4 +82,25 @@ export async function POST(request: NextRequest) {
       error: error.message || 'Failed to track login',
     }, { status: 500 });
   }
+}
+
+// Parse user agent to get device info
+function parseUserAgent(ua: string) {
+  const device = /mobile|android|iphone|ipad|tablet/i.test(ua) ? 'Mobile Device' : 'Desktop';
+  
+  let browser = 'Unknown Browser';
+  if (ua.includes('Chrome')) browser = 'Chrome';
+  else if (ua.includes('Firefox')) browser = 'Firefox';
+  else if (ua.includes('Safari')) browser = 'Safari';
+  else if (ua.includes('Edge')) browser = 'Edge';
+  else if (ua.includes('Opera')) browser = 'Opera';
+  
+  let os = 'Unknown OS';
+  if (ua.includes('Windows')) os = 'Windows';
+  else if (ua.includes('Mac')) os = 'macOS';
+  else if (ua.includes('Linux')) os = 'Linux';
+  else if (ua.includes('Android')) os = 'Android';
+  else if (ua.includes('iOS') || ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+  
+  return { device, browser, os };
 }

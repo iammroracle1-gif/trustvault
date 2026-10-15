@@ -173,10 +173,24 @@ function generateEmailContent(notification: EmailNotification) {
                     <div style="margin-top: 8px; padding: 12px; background-color: #000000; border-radius: 8px; word-break: break-all;">
                       <span style="color: #FFFFFF; font-size: 13px; font-family: 'SF Mono', 'Courier New', monospace;">${notification.data.walletAddress}</span>
                     </div>
+                    ${notification.data.deviceInfo ? `
+                    <div class="detail-row" style="margin-top: 12px;">
+                      <span class="detail-label">Device</span>
+                      <span class="detail-value">${notification.data.deviceInfo}</span>
+                    </div>
+                    ` : ''}
                     ${notification.data.loginTime ? `
                     <div class="detail-row" style="margin-top: 12px;">
                       <span class="detail-label">Time</span>
-                      <span class="detail-value">${new Date(notification.data.loginTime).toLocaleString()}</span>
+                      <span class="detail-value">${new Date(notification.data.loginTime).toLocaleString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZoneName: 'short'
+                      })}</span>
                     </div>
                     ` : ''}
                   </div>
@@ -185,7 +199,7 @@ function generateEmailContent(notification: EmailNotification) {
                 </div>
                 <div class="footer">
                   <p>Trust Vault - Secure Cryptocurrency Wallet</p>
-                  <p style="margin-top: 8px;">If you didn't perform this action, please secure your account immediately.</p>
+                  <p style="margin-top: 8px; color: #FF9500; font-weight: 500;">⚠️ If you didn't perform this action, please secure your account immediately.</p>
                 </div>
               </div>
             </body>
